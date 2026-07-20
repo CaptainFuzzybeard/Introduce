@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduced</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --white:#FFFFFF;
+  --off:#F7F6F4;
+  --surface:#FAFAF9;
+  --border:#E8E7E4;
+  --ink:#1A1917;
+  --ink2:#6B6860;
+  --ink3:#B0ADA6;
+  --rose:#C2516A;
+  --rose-light:#FAF0F2;
+  --rose-mid:#EFC5CE;
+  --green:#3B7D5A;
+  --green-light:#EBF4EF;
+  --amber:#A07830;
+  --amber-light:#FBF4E6;
+}
+
+body{
+  background:#DDDAD4;
+  display:flex;align-items:flex-start;justify-content:center;
+  min-height:100vh;padding:24px 16px 32px;
+  font-family:'DM Sans',sans-serif;
+}
+
+/* ── phone shell ── */
+.phone{
+  width:390px;height:760px;
+  background:var(--surface);
+  border-radius:52px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.10),
+    0 2px 4px rgba(0,0,0,0.06),
+    0 20px 60px rgba(0,0,0,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.55);
+  overflow:hidden;position:relative;
+  display:flex;flex-direction:column;flex-shrink:0;
+}
+
+/* side buttons (decorative) */
+.phone::before{
+  content:'';position:absolute;left:-3px;top:120px;
+  width:3px;height:64px;border-radius:3px 0 0 3px;
+  background:#C8C4BC;
+  box-shadow:0 80px 0 #C8C4BC,0 140px 0 #C8C4BC;
+}
+.phone::after{
+  content:'';position:absolute;right:-3px;top:160px;
+  width:3px;height:80px;border-radius:0 3px 3px 0;
+  background:#C8C4BC;
+}
+
+/* status bar */
+.statusbar{
+  height:52px;padding:14px 28px 0;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;position:relative;z-index:10;
+}
+.sb-time{font-weight:600;font-size:15px;letter-spacing:-.3px;color:var(--ink);}
+.sb-right{display:flex;gap:5px;align-items:center;}
+.sb-right svg{width:15px;height:15px;stroke:var(--ink);stroke-width:2;fill:none;}
+.dynamic-island{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:118px;height:32px;background:#0D0D0D;border-radius:18px;z-index:11;
+}
+
+/* screens */
+.screen{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  display:none;flex-direction:column;
+  padding-bottom:76px;
+  -webkit-overflow-scrolling:touch;
+}
+.screen.active{display:flex;}
+.screen::-webkit-scrollbar{display:none;}
+
+/* bottom nav */
+.bnav{
+  height:70px;border-top:1px solid var(--border);
+  background:rgba(250,250,249,0.94);backdrop-filter:blur(16px);
+  display:flex;align-items:flex-start;padding-top:10px;
+  position:absolute;bottom:0;left:0;right:0;z-index:20;
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;padding:2px 4px;user-select:none;
+}
+.ni-icon{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.ni.active .ni-icon{background:var(--rose-light);}
+.ni-icon svg{width:19px;height:19px;stroke:var(--ink3);stroke-width:1.8;fill:none;transition:stroke .15s;}
+.ni.active .ni-icon svg{stroke:var(--rose);}
+.ni-label{font-size:10px;font-weight:500;color:var(--ink3);letter-spacing:.01em;transition:color .15s;}
+.ni.active .ni-label{color:var(--rose);}
+.ni:active .ni-icon{opacity:.6;}
+
+/* ── type scale ── */
+.t-display{font-family:'DM Serif Display',serif;font-size:32px;line-height:1.1;letter-spacing:-.6px;color:var(--ink);}
+.t-head{font-family:'DM Serif Display',serif;font-size:24px;line-height:1.18;letter-spacing:-.3px;color:var(--ink);}
+.t-head-sm{font-family:'DM Serif Display',serif;font-size:20px;line-height:1.2;letter-spacing:-.2px;color:var(--ink);}
+.t-title{font-size:16px;font-weight:600;letter-spacing:-.15px;color:var(--ink);}
+.t-body{font-size:15px;color:var(--ink);line-height:1.55;}
+.t-caption{font-size:13px;color:var(--ink2);line-height:1.4;}
+.t-micro{font-size:11px;font-weight:500;color:var(--ink3);letter-spacing:.05em;text-transform:uppercase;}
+
+/* ── inputs ── */
+.inp{
+  width:100%;padding:13px 15px;
+  background:var(--white);border:1.5px solid var(--border);border-radius:14px;
+  font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);
+  outline:none;transition:border-color .15s;-webkit-appearance:none;
+}
+.inp:focus{border-color:var(--rose);}
+.inp::placeholder{color:var(--ink3);}
+textarea.inp{resize:none;line-height:1.55;}
+select.inp{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B0ADA6' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.f-label{font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px;display:block;}
+
+/* ── buttons ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:15px 20px;width:100%;
+  border-radius:100px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.1px;
+  transition:transform .12s,opacity .15s,background .15s;user-select:none;
+}
+.btn:active:not(:disabled){transform:scale(.96);}
+.btn:hover:not(:disabled){opacity:.88;}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-ink{background:var(--ink);color:var(--white);}
+.btn-rose{background:var(--rose);color:var(--white);}
+.btn-ghost{background:var(--off);color:var(--ink);}
+.btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--border);}
+.btn-sm{padding:9px 16px;font-size:13px;width:auto;}
+.btn-danger{background:var(--rose-light);color:var(--rose);}
+
+/* ── cards ── */
+.card{background:var(--white);border-radius:20px;border:1px solid var(--border);overflow:hidden;}
+.card-p{padding:18px 20px;}
+
+/* ── badges ── */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500;
+  white-space:nowrap;flex-shrink:0;
+}
+.badge-pending{background:var(--rose-light);color:var(--rose);}
+.badge-matched{background:var(--green-light);color:var(--green);}
+.badge-declined{background:var(--off);color:var(--ink2);}
+.badge-grey{background:var(--off);color:var(--ink2);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.dot-rose{background:var(--rose);}
+.dot-green{background:var(--green);}
+.dot-grey{background:var(--ink3);}
+.dot-amber{background:var(--amber);}
+
+/* ── avatars ── */
+.av{
+  border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--rose-light),var(--rose-mid));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;color:var(--rose);
+}
+.av-lg{width:56px;height:56px;font-size:22px;border-radius:17px;}
+.av-md{width:44px;height:44px;font-size:18px;border-radius:13px;}
+.av-sm{width:38px;height:38px;font-size:15px;border-radius:11px;}
+.av-green{background:linear-gradient(135deg,var(--green-light),#B8D9C5);color:var(--green);}
+
+/* ── layout ── */
+.px{padding-left:22px;padding-right:22px;}
+.row-sb{display:flex;justify-content:space-between;align-items:center;}
+.row-c{display:flex;align-items:center;gap:12px;}
+.ph{padding:16px 22px 10px;}/* page header */
+
+/* ── mode toggle ── */
+.mode-toggle{
+  margin:14px 22px 6px;
+  background:var(--off);border-radius:13px;padding:3px;display:flex;
+}
+.mode-btn{
+  flex:1;padding:9px 6px;border-radius:10px;text-align:center;
+  font-size:13px;font-weight:500;color:var(--ink2);
+  cursor:pointer;transition:all .18s;user-select:none;
+}
+.mode-btn.active{background:var(--white);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,0.10);}
+
+/* ── wingman sub-tabs ── */
+.wm-tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  overflow-x:auto;padding:0 18px;
+}
+.wm-tabs::-webkit-scrollbar{display:none;}
+.wm-tab{
+  padding:10px 12px;font-size:13px;font-weight:500;color:var(--ink3);
+  cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .15s,border-color .15s;
+}
+.wm-tab.active{color:var(--ink);border-bottom-color:var(--rose);}
+
+/* ── list rows ── */
+.lr{
+  display:flex;align-items:center;gap:13px;padding:14px 20px;
+  cursor:pointer;transition:background .12s;
+}
+.lr:active{background:var(--off);}
+.lr:not(:last-child){border-bottom:1px solid var(--border);}
+.lr-body{flex:1;min-width:0;}
+.lr-title{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lr-sub{font-size:12px;color:var(--ink2);margin-top:1px;}
+
+/* ── empty state ── */
+.empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:40px 28px;text-align:center;gap:9px;flex:1;
+}
+.empty-icon{
+  width:52px;height:52px;border-radius:16px;background:var(--off);
+  display:flex;align-items:center;justify-content:center;margin-bottom:6px;
+}
+.empty-icon svg{width:24px;height:24px;stroke:var(--ink3);stroke-width:1.6;fill:none;}
+
+/* ── toast ── */
+.toast{
+  position:absolute;bottom:94px;left:18px;right:18px;
+  background:rgba(26,25,23,0.94);backdrop-filter:blur(12px);
+  color:var(--white);border-radius:14px;padding:12px 18px;
+  font-size:14px;font-weight:500;text-align:center;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .18s,transform .18s;
+  pointer-events:none;z-index:200;
+}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ── bottom sheet modal ── */
+.sheet-back{
+  position:absolute;inset:0;background:rgba(26,25,23,0.48);
+  z-index:60;display:none;align-items:flex-end;
+  backdrop-filter:blur(3px);border-radius:52px;overflow:hidden;
+}
+.sheet-back.open{display:flex;}
+.sheet{
+  background:var(--surface);width:100%;max-height:90%;
+  border-radius:28px 28px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:su .26s cubic-bezier(.32,.72,0,1);
+}
+@keyframes su{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:12px auto 4px;}
+.sheet-body{overflow-y:auto;flex:1;padding:16px 22px 28px;}
+.sheet-body::-webkit-scrollbar{display:none;}
+
+/* ── match sheet sections ── */
+.pair-row{display:flex;align-items:stretch;gap:8px;margin:14px 0 10px;}
+.pair-half{
+  flex:1;background:var(--off);border-radius:16px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.pair-amp{
+  font-family:'DM Serif Display',serif;font-size:20px;
+  color:var(--rose);font-style:italic;
+  align-self:center;flex-shrink:0;padding:0 2px;
+}
+.section-head{
+  font-size:11px;font-weight:600;color:var(--ink3);
+  letter-spacing:.06em;text-transform:uppercase;
+  margin:18px 0 8px;
+}
+.appr-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.appr-row:last-child{border-bottom:none;}
+.q-block{
+  background:var(--off);border-radius:13px;padding:13px 15px;margin-top:8px;
+}
+.q-text{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:5px;}
+.a-text{font-size:13px;color:var(--ink2);}
+.ans-row{display:flex;gap:8px;margin-top:8px;}
+.ans-inp{
+  flex:1;padding:9px 13px;border-radius:10px;border:1px solid var(--border);
+  font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--white);
+}
+.ans-inp:focus{border-color:var(--rose);}
+.ans-btn{
+  padding:9px 15px;border-radius:10px;background:var(--ink);color:#fff;
+  border:none;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;
+}
+.ans-btn:active{opacity:.75;}
+
+/* ── chat (inside sheet) ── */
+.chat-messages{
+  display:flex;flex-direction:column;gap:7px;
+  padding:14px 22px 8px;border-top:1px solid var(--border);
+  max-height:220px;overflow-y:auto;
+}
+.chat-messages::-webkit-scrollbar{display:none;}
+.bubble{
+  max-width:80%;padding:9px 13px;border-radius:17px;font-size:14px;line-height:1.45;
+}
+.bub-me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:4px;}
+.bub-them{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.bub-ts{font-size:10px;opacity:.5;margin-top:3px;display:block;}
+.chat-inp-row{
+  display:flex;gap:8px;align-items:center;
+  padding:10px 18px 14px;border-top:1px solid var(--border);
+  background:var(--surface);position:sticky;bottom:0;
+}
+.chat-inp-row input{
+  flex:1;padding:10px 15px;border-radius:100px;
+  background:var(--white);border:1px solid var(--border);
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none;
+}
+.chat-inp-row input:focus{border-color:var(--rose);}
+.chat-send-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--rose);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.chat-send-btn:active{opacity:.7;}
+.chat-send-btn svg{width:15px;height:15px;stroke:#fff;stroke-width:2;fill:none;}
+
+/* ── intro card ── */
+.intro-card{
+  margin:0 18px 12px;
+  background:var(--white);border-radius:24px;border:1px solid var(--border);
+  overflow:hidden;
+}
+.intro-card-top{padding:22px 22px 16px;}
+.intro-card-actions{
+  padding:14px 18px 18px;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:8px;
+}
+.action-row{display:flex;gap:8px;}
+
+/* ── stash grid ── */
+.stash-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;padding:6px 18px 0;
+}
+.stash-tile{
+  background:var(--white);border-radius:18px;border:1px solid var(--border);
+  padding:16px;display:flex;flex-direction:column;gap:6px;
+}
+
+/* ── v3: conviction, confidence, slots, shortlist, pulse, consent ── */
+.conv-block{background:var(--rose-light);border-radius:13px;padding:12px 14px;margin-top:12px;}
+.conv-label{font-size:10px;font-weight:600;color:var(--rose);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.conv-text{font-size:13px;color:var(--ink);line-height:1.5;font-style:italic;}
+.seg{display:flex;background:var(--off);border-radius:11px;padding:3px;gap:2px;}
+.seg-btn{flex:1;padding:8px 4px;border-radius:8px;text-align:center;font-size:12px;font-weight:500;color:var(--ink2);cursor:pointer;transition:all .15s;user-select:none;}
+.seg-btn.active{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.slot-dots{display:flex;gap:5px;align-items:center;}
+.slot{width:8px;height:8px;border-radius:50%;background:var(--rose);}
+.slot.spent{background:var(--border);}
+.sl-tile{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid var(--border);border-radius:14px;margin-top:8px;cursor:pointer;background:var(--white);transition:border-color .15s,background .15s;}
+.sl-tile.picked{border-color:var(--rose);background:var(--rose-light);}
+.pulse-box{background:var(--off);border-radius:13px;padding:13px 15px;margin-top:8px;}
+.consent-card{background:var(--amber-light);border:1px solid #EAD9B8;border-radius:16px;padding:14px 16px;margin-bottom:10px;}
+
+/* ── admin panel (hidden for non-admins) ── */
+.admin-tap{cursor:pointer;user-select:none;}
+.admin-panel{position:absolute;inset:0;background:rgba(26,25,23,0.94);backdrop-filter:blur(8px);z-index:300;display:none;flex-direction:column;padding:28px 22px;border-radius:52px;overflow-y:auto;}
+.admin-panel.open{display:flex;}
+.admin-panel h3{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;margin-bottom:6px;}
+.admin-panel .t-caption{color:#B0ADA6;}
+.admin-row{background:rgba(255,255,255,0.06);border-radius:14px;padding:14px 16px;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.admin-row .k{font-size:11px;color:#B0ADA6;text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+.admin-row .v{font-size:14px;color:#fff;}
+.admin-row .a{margin-top:8px;}
+.admin-btn{background:#fff;color:#1A1917;border:none;border-radius:12px;padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;}
+.admin-btn.danger{background:var(--rose);color:#fff;}
+.admin-close{position:absolute;top:22px;right:22px;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:6px 10px;}
+
+/* ── browse ── */
+.br-card{margin:0 18px 12px;background:var(--white);border-radius:20px;border:1px solid var(--border);padding:18px 20px;cursor:pointer;transition:border-color .15s;}
+.br-card:active{border-color:var(--rose);}
+.conn-line{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:500;}
+.conn-direct{color:var(--green);}
+.conn-bridged{color:var(--rose);}
+.conn-none{color:var(--ink3);}
+.pf-tag{display:inline-block;background:var(--off);border-radius:8px;padding:3px 9px;font-size:12px;color:var(--ink2);margin:0 4px 4px 0;}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- status bar -->
+  <div class="statusbar">
+    <span class="sb-time" id="sbTime">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="sb-right">
+      <!-- signal -->
+      <svg viewBox="0 0 24 24" fill="var(--ink)" stroke="none"><rect x="1" y="15" width="3" height="6" rx="1"/><rect x="6" y="11" width="3" height="10" rx="1"/><rect x="11" y="7" width="3" height="14" rx="1"/><rect x="16" y="3" width="3" height="18" rx="1" opacity=".3"/></svg>
+      <!-- wifi -->
+      <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <!-- battery -->
+      <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2"/><path d="M23 13v-2" stroke-linecap="round"/><rect x="3" y="8" width="13" height="8" rx="1" fill="var(--ink)" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <!-- ── LOGIN ── -->
+  <div class="screen active" id="sc-login" style="justify-content:center;padding-bottom:0;">
+    <div class="px" style="padding-top:36px;padding-bottom:40px;">
+      <div class="t-micro" style="color:var(--rose);margin-bottom:14px;">Introduced</div>
+      <div class="t-display" style="margin-bottom:10px;">Matched by people<br><em>who know you.</em></div>
+      <p class="t-caption" style="margin-bottom:36px;font-size:14px;line-height:1.65;">No swiping into the void. You browse, but every approach comes through a wingman — someone who can actually vouch for you.</p>
+      <div style="margin-bottom:11px;">
+        <label class="f-label">Your invite code</label>
+        <input class="inp" id="loginCode" placeholder="e.g. priya" autocomplete="off" spellcheck="false" inputmode="text"/>
+      </div>
+      <div id="loginNameWrap" style="display:none;margin-bottom:11px;">
+        <label class="f-label">New here — what's your name?</label>
+        <input class="inp" id="loginName" placeholder="Full name"/>
+      </div>
+      <button class="btn btn-ink" id="loginBtn" style="margin-top:4px;">Continue</button>
+      <p class="t-caption" style="margin-top:14px;text-align:center;font-size:12px;line-height:1.5;">This is a prototype. Share your invite code only with people you trust.</p>
+    </div>
+  </div>
+
+  <!-- ── HOME ── -->
+  <div class="screen" id="sc-home">
+    <div class="ph row-sb" style="padding-bottom:4px;padding-top:18px;">
+      <div>
+        <div class="t-micro admin-tap" id="adminTap" style="color:var(--rose);margin-bottom:3px;">Introduced</div>
+        <div class="t-head" id="homeGreet">Hello</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="switchBtn">Switch</button>
+    </div>
+    <div class="mode-toggle">
+      <div class="mode-btn active" id="mbUser">I want to date</div>
+      <div class="mode-btn" id="mbWing">I'm a wingman</div>
+    </div>
+    <div id="userContent" style="padding-top:6px;"></div>
+    <div id="wingContent" style="display:none;padding-top:6px;"></div>
+  </div>
+
+  <!-- ── INTROS ── -->
+  <div class="screen" id="sc-intros">
+    <div class="ph">
+      <div class="t-micro" style="color:var(--rose);margin-bottom:3px;">For you</div>
+      <div class="t-head">Introductions</div>
+    </div>
+    <div id="introsBody"></div>
+  </div>
+
+  <!-- ── BROWSE ── -->
+  <div class="screen" id="sc-browse">
+    <div class="ph">
+      <div class="t-micro" style="color:var(--rose);margin-bottom:3px;">Everyone</div>
+      <div class="t-head">Browse</div>
+    </div>
+    <div id="browseBody"></div>
+  </div>
+
+  <!-- ── MATCHES ── -->
+  <div class="screen" id="sc-matches">
+    <div class="ph">
+      <div class="t-micro" style="margin-bottom:3px;">Connected</div>
+      <div class="t-head">Your matches</div>
+    </div>
+    <div id="matchesBody"></div>
+  </div>
+
+  <!-- ── WINGMAN HUB ── -->
+  <div class="screen" id="sc-wing">
+    <div class="ph row-sb" style="padding-top:18px;">
+      <div>
+        <div class="t-micro" style="color:var(--rose);margin-bottom:3px;">Wingman</div>
+        <div class="t-head">Your hub</div>
+      </div>
+      <span class="badge badge-grey t-micro" id="wmBadge"></span>
+    </div>
+    <div class="wm-tabs" id="wmTabs"></div>
+    <div id="wmBody" style="padding-top:6px;"></div>
+  </div>
+
+  <!-- ── BOTTOM NAV ── -->
+  <nav class="bnav">
+    <div class="ni active" data-sc="home">
+      <div class="ni-icon"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg></div>
+      <span class="ni-label">Home</span>
+    </div>
+    <div class="ni" data-sc="intros">
+      <div class="ni-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <span class="ni-label">Intros</span>
+    </div>
+    <div class="ni" data-sc="browse">
+      <div class="ni-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+      <span class="ni-label">Browse</span>
+    </div>
+    <div class="ni" data-sc="matches">
+      <div class="ni-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+      <span class="ni-label">Matches</span>
+    </div>
+    <div class="ni" data-sc="wing">
+      <div class="ni-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.85"/></svg></div>
+      <span class="ni-label">Wingman</span>
+    </div>
+  </nav>
+
+  <!-- ── SHEET MODAL ── -->
+  <div class="sheet-back" id="sheetBack">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-body" id="sheetBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ── ADMIN PANEL (hidden for non-admins) ── -->
+  <div class="admin-panel" id="adminPanel">
+    <button class="admin-close" id="adminClose">×</button>
+    <h3>Prototype controls</h3>
+    <div class="t-caption">Visible to approved codes only.</div>
+    <div id="adminBody" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══ CONFIG ════════════════════════════════════════════
+// Paste your Supabase project URL and anon (public) key below to switch
+// this prototype from local-only testing to shared realtime storage.
+// Empty strings = falls back to localStorage.
+const SUPABASE_URL='https://xuprmeibicfvuoixhdrh.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1cHJtZWliaWNmdnVvaXhoZHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MTcyNTcsImV4cCI6MjEwMDA5MzI1N30.q5Q7kYKXDdurEjix8kNaYwQoZUbC5dbBbSdIOj8f3dM';
+
+// Invite codes that see the prototype controls panel.
+// Everyone else sees a plain app.
+const ADMIN_CODES=['bhanu'];
+
+// ═══ STORAGE ═══════════════════════════════════════════
+// Priority: Supabase (shared, realtime) > localStorage (single browser).
+// Both implement the same tiny key-value interface: get/set/delete/list.
+let STORAGE_BACKEND='none';
+let SUPA=null; // supabase client, when configured
+let SUPABASE_INIT_ERROR=''; // surfaced to admin + login when shared storage can't start
+
+function makeSupabaseStore(client){
+  return{
+    async get(k){
+      const{data,error}=await client.from('kv').select('v').eq('k',k).maybeSingle();
+      if(error){console.error('supa get',k,error);return null;}
+      return data?{value:data.v}:null;
+    },
+    async set(k,v){
+      const{error}=await client.from('kv').upsert({k,v,updated_at:new Date().toISOString()});
+      if(error)console.error('supa set',k,error);
+      return{key:k};
+    },
+    async delete(k){
+      const{error}=await client.from('kv').delete().eq('k',k);
+      if(error)console.error('supa delete',k,error);
+      return{key:k};
+    },
+    async list(prefix){
+      const p=(prefix||'').replace(/([%_])/g,'\\$1');
+      const{data,error}=await client.from('kv').select('k').like('k',p+'%').limit(1000);
+      if(error){console.error('supa list',prefix,error);return{keys:[]};}
+      return{keys:(data||[]).map(r=>r.k)};
+    },
+  };
+}
+function makeLocalStore(){
+  const P='introduced::';
+  return{
+    async get(k){const v=localStorage.getItem(P+k);return v===null?null:{value:v};},
+    async set(k,v){localStorage.setItem(P+k,v);return{key:k};},
+    async delete(k){localStorage.removeItem(P+k);return{key:k};},
+    async list(prefix){
+      const p=P+(prefix||'');const keys=[];
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(k&&k.startsWith(p))keys.push(k.slice(P.length));
+      }
+      return{keys};
+    },
+  };
+}
+
+let STORE=null;
+async function initStorage(){
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    if(typeof window==='undefined'||!window.supabase){
+      SUPABASE_INIT_ERROR='Supabase library did not load (check your connection / that jsdelivr is reachable).';
+      STORAGE_BACKEND='error';STORE=null;return;
+    }
+    try{
+      SUPA=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+      // Require an authenticated session so the anon key alone (from view-source)
+      // can't reach the table. Anonymous sign-in gives testers a session with
+      // zero friction — no email, no password.
+      let{data:{session}}=await SUPA.auth.getSession();
+      if(!session){
+        const{data,error}=await SUPA.auth.signInAnonymously();
+        if(error)throw error;
+        session=data.session;
+      }
+      if(!session)throw new Error('No session after anonymous sign-in. Enable Anonymous sign-ins in Supabase → Authentication → Sign In / Providers.');
+      STORE=makeSupabaseStore(SUPA);
+      STORAGE_BACKEND='supabase';
+      // Realtime: any change to the kv table re-renders the current view so two
+      // testers in two browsers see each other's writes live.
+      SUPA.channel('kv-changes').on('postgres_changes',{event:'*',schema:'public',table:'kv'},()=>{
+        rerenderCurrent();
+      }).subscribe();
+      return;
+    }catch(e){
+      console.error('supabase init failed',e);
+      SUPABASE_INIT_ERROR=(e&&e.message)?e.message:String(e);
+      // Configured but broken → do NOT fall back to localStorage silently.
+      // For a shared test group, silent per-browser storage looks like "connected"
+      // while everyone is actually isolated. Fail loud instead.
+      STORAGE_BACKEND='error';STORE=null;return;
+    }
+  }
+  if(typeof localStorage!=='undefined'){
+    STORE=makeLocalStore();
+    STORAGE_BACKEND='localStorage';
+    return;
+  }
+  STORE=null;
+  STORAGE_BACKEND='none';
+}
+
+async function ss(k,v){try{await STORE.set(k,JSON.stringify(v),true);}catch(e){console.error('ss',k,e);}}
+async function sg(k){try{const r=await STORE.get(k,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function sl(prefix){
+  try{
+    const r=await STORE.list(prefix,true);
+    if(!r||!r.keys)return[];
+    return r.keys.map(k=>typeof k==='string'?k:(k.key||k));
+  }catch(e){return[];}
+}
+async function sd(k){try{await STORE.delete(k,true);}catch(e){}}
+
+// ═══ UTILS ═════════════════════════════════════════════
+const uid=()=>'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const now=()=>Date.now();
+const esc=s=>(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const el=h=>{const d=document.createElement('div');d.innerHTML=h;return d.firstElementChild;};
+const ini=n=>(n||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
+const ftm=t=>{const d=new Date(t);return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});};
+
+// live clock
+function startClock(){
+  const upd=()=>{
+    const d=new Date();
+    const h=d.getHours()%12||12,m=String(d.getMinutes()).padStart(2,'0');
+    const el=document.getElementById('sbTime');
+    if(el)el.textContent=h+':'+m;
+  };
+  upd();setInterval(upd,15000);
+}
+
+// ═══ TOAST ═════════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ═══ STATE ═════════════════════════════════════════════
+let ME=null;
+let MODE='user'; // 'user' | 'wingman'
+let WMTAB='daters';
+let CROSS=false;
+let CLAIMING=false; // login step 2: name field is showing for a new code
+let CURRENT_SCREEN='login';
+let OPEN_SHEET=null; // {kind:'match', id:...} while a match sheet is open
+let ADMIN_TAPS=0;   // logo taps toward opening admin panel
+let ADMIN_TAP_TS=0;
+let RERENDER_TIMER=null;
+function rerenderCurrent(){
+  // Realtime writes fire this. Debounce so a burst of writes triggers one repaint.
+  clearTimeout(RERENDER_TIMER);
+  RERENDER_TIMER=setTimeout(()=>{
+    if(!ME)return;
+    if(CURRENT_SCREEN==='home')setMode(MODE);
+    else if(CURRENT_SCREEN==='intros')renderIntros();
+    else if(CURRENT_SCREEN==='browse')renderBrowse();
+    else if(CURRENT_SCREEN==='matches')renderMatchesScreen();
+    else if(CURRENT_SCREEN==='wing')renderWingHub();
+    if(OPEN_SHEET&&OPEN_SHEET.kind==='match')openMatchSheet(OPEN_SHEET.id);
+  },120);
+}
+
+// ═══ DATA LAYER ════════════════════════════════════════
+
+// Person
+async function getPerson(id){return sg('per:'+id);}
+async function savePerson(p){await ss('per:'+p.id,p);}
+async function ensurePerson(code,name){
+  code=(code||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(!code)return null;
+  let p=await getPerson(code);
+  if(p)return p;
+  if(!name)return 'NEEDS_NAME';
+  p={id:code,name:name.trim(),inviteCode:code,createdAt:now()};
+  await savePerson(p);return p;
+}
+
+// Profile (filled by the dater themselves)
+async function getProfile(daterId){return sg('prf:'+daterId);}
+async function saveProfile(daterId,patch){
+  let pf=await getProfile(daterId)||{daterId,bio:'',age:'',iAm:'',interestedIn:'',lookingFor:'',area:'',createdAt:now()};
+  Object.assign(pf,patch,{updatedAt:now()});
+  await ss('prf:'+daterId,pf);
+  // Directory index: a dater is discoverable once their profile has the essentials.
+  if(pf.bio&&pf.age&&pf.iAm&&pf.interestedIn&&pf.lookingFor){
+    await ss('dir:'+daterId,{daterId,at:now()});
+  }else{
+    await sd('dir:'+daterId);
+  }
+  return pf;
+}
+function profileComplete(pf){return!!(pf&&pf.bio&&pf.age&&pf.iAm&&pf.interestedIn&&pf.lookingFor);}
+
+// Directory: every dater with a complete profile (visible to everyone)
+async function getDirectory(){
+  const ks=await sl('dir:');
+  const out=[];
+  for(const k of ks){
+    const r=await sg(k);if(!r)continue;
+    const [p,pf]=await Promise.all([getPerson(r.daterId),getProfile(r.daterId)]);
+    if(p&&profileComplete(pf))out.push({id:r.daterId,name:p.name,pf});
+  }
+  return out;
+}
+
+// Connection detection: does any of MY wingmen have a path to targetId?
+// direct  = a wingman of mine has targetId in their Book (knows them)
+// bridged = a wingman of mine has a collaborator whose Book holds targetId
+async function connectionTo(myId,targetId){
+  const wms=await getMyWingmen(myId);
+  // direct
+  for(const w of wms){
+    if(await sg('wlb:'+w.wmId+'__'+targetId)){
+      const wm=await getPerson(w.wmId);
+      return{kind:'direct',wmId:w.wmId,wmName:wm?.name||w.wmId};
+    }
+  }
+  // bridged
+  for(const w of wms){
+    const collabs=await getCollabs(w.wmId);
+    for(const cId of collabs){
+      if(await sg('wlb:'+cId+'__'+targetId)){
+        const wm=await getPerson(w.wmId);
+        return{kind:'bridged',wmId:w.wmId,wmName:wm?.name||w.wmId,viaId:cId};
+      }
+    }
+  }
+  return{kind:'none'};
+}
+// For a wingman browsing: do I (this wingman) already reach targetId?
+async function wmReaches(wmId,targetId){
+  if(await sg('wlb:'+wmId+'__'+targetId))return{kind:'direct'};
+  const collabs=await getCollabs(wmId);
+  for(const cId of collabs){
+    if(await sg('wlb:'+cId+'__'+targetId))return{kind:'bridged',viaId:cId};
+  }
+  return{kind:'none'};
+}
+
+// Approach requests: a dater asks a wingman to approach someone on their behalf.
+async function requestApproach(daterId,wmId,targetId,note){
+  const id=uid();
+  await ss('apr:'+wmId+'__'+id,{id,daterId,wmId,targetId,note:note||'',status:'open',at:now()});
+}
+async function getApproachRequests(wmId){
+  const ks=await sl('apr:'+wmId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r&&r.status==='open')out.push(r);}
+  return out.sort((a,b)=>b.at-a.at);
+}
+async function closeApproachRequest(wmId,id){
+  const r=await sg('apr:'+wmId+'__'+id);
+  if(r){r.status='done';await ss('apr:'+wmId+'__'+id,r);}
+}
+
+// Wingman links
+async function linkWingman(daterId,wmId){
+  if(daterId===wmId)return{ok:false,msg:"That's you."};
+  const wm=await getPerson(wmId);
+  if(!wm)return{ok:false,msg:'Nobody with that code yet.'};
+  if(await sg('wla:'+daterId+'__'+wmId))return{ok:false,msg:'Already your wingman.'};
+  const existing=await sl('wla:'+daterId+'__');
+  if(existing.length>=3)return{ok:false,msg:'You already have 3 wingmen.'};
+  const r={daterId,wmId,at:now()};
+  await ss('wla:'+daterId+'__'+wmId,r);
+  await ss('wlb:'+wmId+'__'+daterId,r);
+  return{ok:true};
+}
+async function getMyWingmen(daterId){
+  const ks=await sl('wla:'+daterId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}return out;
+}
+async function getMyDaters(wmId){
+  const ks=await sl('wlb:'+wmId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}return out;
+}
+
+// Collaborations (wingman↔wingman)
+async function linkCollab(aId,bId){
+  if(aId===bId)return{ok:false,msg:"That's you."};
+  const b=await getPerson(bId);
+  if(!b)return{ok:false,msg:'Nobody with that code yet.'};
+  if(await sg('col:'+aId+'__'+bId))return{ok:false,msg:'Already collaborating.'};
+  const r={a:aId,b:bId,at:now()};
+  await ss('col:'+aId+'__'+bId,r);
+  await ss('col:'+bId+'__'+aId,r);
+  return{ok:true};
+}
+async function getCollabs(wmId){
+  const ks=await sl('col:'+wmId+'__');
+  const out=[];
+  for(const k of ks){const r=await sg(k);if(r)out.push(r.a===wmId?r.b:r.a);}
+  return out;
+}
+
+// Profile sharing between wingmen
+async function shareProfile(fromId,toId,daterId){
+  const r={from:fromId,to:toId,daterId,at:now()};
+  await ss('sho:'+fromId+'__'+toId+'__'+daterId,r);// out
+  await ss('shi:'+toId+'__'+fromId+'__'+daterId,r);// in
+}
+async function getSharedWithMe(wmId){
+  const ks=await sl('shi:'+wmId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}return out;
+}
+async function getSharedByMe(wmId){
+  const ks=await sl('sho:'+wmId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}return out;
+}
+
+// Stash = my daters who have profiles
+async function getStash(wmId){
+  const daters=await getMyDaters(wmId);
+  const out=[];
+  for(const d of daters){
+    const person=await getPerson(d.daterId);
+    const pf=await getProfile(d.daterId);
+    if(pf)out.push({id:d.daterId,name:person?.name||d.daterId,pf});
+  }
+  return out;
+}
+
+// Matches
+async function createMatch({type,daterAId,daterBId,wmXId,wmYId,note,confidence}){
+  const id=uid();
+  // For single: required = [daterAId, daterBId] (wingman just initiates, no approval needed)
+  // For cross:  required = [daterAId, daterBId, wmXId, wmYId] (all four must approve)
+  const required=type==='cross'?[daterAId,daterBId,wmXId,wmYId]:[daterAId,daterBId];
+  const approvals={};required.forEach(p=>approvals[p]=null);
+  const m={id,type,daterAId,daterBId,wmXId,wmYId:wmYId||null,required,approvals,questions:[],note:note||'',confidence:typeof confidence==='number'?confidence:null,createdAt:now(),updatedAt:now()};
+  await ss('mat:'+id,m);
+  const all=new Set([daterAId,daterBId,wmXId]);if(wmYId)all.add(wmYId);
+  for(const pid of all)await ss('mof:'+pid+'__'+id,id);
+  return m;
+}
+async function getMatch(id){return sg('mat:'+id);}
+async function saveMatch(m){m.updatedAt=now();await ss('mat:'+m.id,m);}
+function matchStatus(m){
+  const vals=m.required.map(p=>m.approvals[p]);
+  if(vals.some(v=>v===false))return'declined';
+  if(vals.every(v=>v===true))return'matched';
+  return'pending';
+}
+async function getMyMatches(pid){
+  const ks=await sl('mof:'+pid+'__');
+  const out=[];
+  for(const k of ks){const mid=await sg(k);const mm=mid?await getMatch(mid):null;if(mm)out.push(mm);}
+  return out.sort((a,b)=>b.updatedAt-a.updatedAt);
+}
+async function setApproval(matchId,pid,val){
+  const m=await getMatch(matchId);if(!m)return m;
+  m.approvals[pid]=val;await saveMatch(m);return m;
+}
+async function addQuestion(matchId,fromId,toWmId,text){
+  const m=await getMatch(matchId);if(!m)return;
+  m.questions.push({id:uid(),fromId,toWmId,text,answer:null,createdAt:now()});
+  await saveMatch(m);return m;
+}
+async function answerQ(matchId,qId,answer){
+  const m=await getMatch(matchId);if(!m)return;
+  const q=m.questions.find(q=>q.id===qId);
+  if(q){q.answer=answer;q.answeredAt=now();}
+  await saveMatch(m);return m;
+}
+
+// Chat
+async function getChat(matchId){return(await sg('cht:'+matchId))||[];}
+async function sendMsg(matchId,senderId,text){
+  const c=await getChat(matchId);
+  c.push({senderId,text,at:now()});
+  await ss('cht:'+matchId,c);return c;
+}
+
+// ═══ V3 DATA ═══════════════════════════════════════════
+const CONF=['Long shot','Good feeling','Sure of it'];
+const CAP_WM=3,CAP_DATER=3;
+
+// intro slots + caps
+async function wmSlots(wmId){
+  const ms=await getMyMatches(wmId);
+  const open=ms.filter(m=>m.wmXId===wmId&&matchStatus(m)==='pending').length;
+  return{open,free:Math.max(0,CAP_WM-open)};
+}
+async function daterPending(pid){
+  const ms=await getMyMatches(pid);
+  return ms.filter(m=>(m.daterAId===pid||m.daterBId===pid)&&matchStatus(m)==='pending').length;
+}
+async function checkCaps(wmId,aId,bId){
+  const s=await wmSlots(wmId);
+  if(s.free<=0)return'All 3 of your introduction slots are in play. Wait for one to resolve.';
+  for(const pid of[aId,bId]){
+    if((await daterPending(pid))>=CAP_DATER){
+      const p=await getPerson(pid);
+      return(p?.name||pid)+' already has '+CAP_DATER+' introductions waiting.';
+    }
+  }
+  return null;
+}
+
+// feedback pulses (free-text, dater → wingmen only)
+async function getPulse(matchId,daterId){return sg('pul:'+matchId+'__'+daterId);}
+async function savePulse(matchId,daterId,text,skipped){
+  await ss('pul:'+matchId+'__'+daterId,{matchId,daterId,text:text||'',skipped:!!skipped,at:now()});
+}
+
+// shortlists
+async function getShortlists(daterId){
+  const ks=await sl('shl:'+daterId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}
+  return out.sort((a,b)=>b.at-a.at);
+}
+async function saveShortlist(s){await ss('shl:'+s.daterId+'__'+s.id,s);}
+
+// profile-share consent: requests + standing grants
+async function getShareRequests(daterId){
+  const ks=await sl('shq:'+daterId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}return out;
+}
+async function getGrant(daterId,toId){return sg('shg:'+daterId+'__'+toId);}
+async function getGrants(daterId){
+  const ks=await sl('shg:'+daterId+'__');
+  const out=[];for(const k of ks){const r=await sg(k);if(r)out.push(r);}return out;
+}
+async function requestShare(fromId,toId,daterId){
+  const id=uid();
+  await ss('shq:'+daterId+'__'+id,{id,daterId,from:fromId,to:toId,at:now()});
+}
+async function approveShare(req){
+  await ss('shg:'+req.daterId+'__'+req.to,{daterId:req.daterId,toId:req.to,at:now()});
+  await shareProfile(req.from,req.to,req.daterId);
+  await sd('shq:'+req.daterId+'__'+req.id);
+}
+async function declineShare(req){await sd('shq:'+req.daterId+'__'+req.id);}
+async function revokeGrant(daterId,toId){
+  await sd('shg:'+daterId+'__'+toId);
+  const ks=await sl('shi:'+toId+'__');
+  for(const k of ks){
+    const r=await sg(k);
+    if(r&&r.daterId===daterId){
+      await sd('shi:'+toId+'__'+r.from+'__'+daterId);
+      await sd('sho:'+r.from+'__'+toId+'__'+daterId);
+    }
+  }
+}
+
+// wingman record: proposed → matched, calibration by private read
+async function wmRecord(wmId){
+  const ms=(await getMyMatches(wmId)).filter(m=>m.wmXId===wmId);
+  const matched=ms.filter(m=>matchStatus(m)==='matched');
+  const resolved=ms.filter(m=>matchStatus(m)!=='pending');
+  const cal={};
+  for(const m of resolved){
+    if(typeof m.confidence!=='number')continue;
+    cal[m.confidence]=cal[m.confidence]||{n:0,hit:0};
+    cal[m.confidence].n++;
+    if(matchStatus(m)==='matched')cal[m.confidence].hit++;
+  }
+  return{proposed:ms.length,matched:matched.length,resolved:resolved.length,cal};
+}
+
+// ═══ NAVIGATION ════════════════════════════════════════
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const sc=document.getElementById('sc-'+name);
+  if(sc)sc.classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active',n.dataset.sc===name));
+  CURRENT_SCREEN=name;
+}
+
+function openSheet(renderFn){
+  const back=document.getElementById('sheetBack');
+  const body=document.getElementById('sheetBody');
+  // Any leftover chat input from a previous open belongs to the sheet, not the body — clear it too.
+  document.querySelectorAll('.sheet .chat-inp-row').forEach(n=>n.remove());
+  body.innerHTML='';
+  back.classList.add('open');
+  renderFn(body);
+  back.onclick=e=>{if(e.target===back)closeSheet();};
+}
+function closeSheet(){document.getElementById('sheetBack').classList.remove('open');OPEN_SHEET=null;}
+
+// ═══ LOGIN ═════════════════════════════════════════════
+function initLogin(){
+  const codeEl=document.getElementById('loginCode');
+  const nameWrap=document.getElementById('loginNameWrap');
+  const nameEl=document.getElementById('loginName');
+  const btn=document.getElementById('loginBtn');
+
+  function settle(msg){
+    btn.disabled=false;
+    btn.textContent=CLAIMING?'Claim this code':'Continue';
+    if(msg)toast(msg);
+  }
+
+  function finishLogin(p){
+    ME=p;CLAIMING=false;
+    document.getElementById('homeGreet').textContent='Hi, '+ME.name+'.';
+    document.getElementById('wmBadge').textContent=ME.inviteCode;
+    document.getElementById('switchBtn').onclick=doSwitch;
+    document.getElementById('mbUser').onclick=()=>setMode('user');
+    document.getElementById('mbWing').onclick=()=>setMode('wingman');
+    initNav();
+    initAdminGesture();
+    goScreen('home');
+    setMode('user');
+  }
+
+  async function go(){
+    btn.disabled=true;btn.textContent='…';
+    const code=(codeEl.value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(!code){CLAIMING=false;nameWrap.style.display='none';settle('Enter a code');return;}
+    if(!STORE){settle(STORAGE_BACKEND==='error'?('Shared storage: '+SUPABASE_INIT_ERROR):'No storage available in this browser');return;}
+
+    // Step 1: does this code already belong to someone?
+    const existing=await getPerson(code);
+    if(existing){finishLogin(existing);return;}
+
+    // Step 2: new code — reveal name field once, then claim on the next click.
+    if(!CLAIMING){
+      CLAIMING=true;
+      nameWrap.style.display='block';nameEl.focus();
+      settle();
+      return;
+    }
+    const name=(nameEl.value||'').trim();
+    if(!name){settle('Enter your name');return;}
+    const p={id:code,name,inviteCode:code,createdAt:now()};
+    await savePerson(p);
+    // Verify the write actually landed — silent storage failures otherwise look like a dead button.
+    const check=await getPerson(code);
+    if(!check){settle('Couldn\'t save. Check that your browser allows storage on this file.');return;}
+    finishLogin(check);
+  }
+
+  // Typing a different code exits claim mode.
+  codeEl.addEventListener('input',()=>{
+    if(CLAIMING){CLAIMING=false;nameWrap.style.display='none';btn.textContent='Continue';}
+  });
+  btn.addEventListener('click',go);
+  [codeEl,nameEl].forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')go();}));
+}
+
+function doSwitch(){
+  ME=null;MODE='user';WMTAB='daters';CROSS=false;CLAIMING=false;
+  document.getElementById('loginCode').value='';
+  document.getElementById('loginName').value='';
+  document.getElementById('loginNameWrap').style.display='none';
+  document.getElementById('loginBtn').textContent='Continue';
+  document.getElementById('loginBtn').disabled=false;
+  goScreen('login');
+}
+
+// ═══ ADMIN PANEL (approved codes only) ═════════════════
+function isAdmin(){return!!ME&&ADMIN_CODES.includes(ME.inviteCode);}
+function initAdminGesture(){
+  const tap=document.getElementById('adminTap');
+  if(!tap)return;
+  // Non-admins get no gesture at all: five taps do nothing, no hint, no panel.
+  tap.style.cursor=isAdmin()?'pointer':'default';
+  tap.onclick=()=>{
+    if(!isAdmin())return;
+    const t=Date.now();
+    if(t-ADMIN_TAP_TS>1200)ADMIN_TAPS=0;
+    ADMIN_TAP_TS=t;ADMIN_TAPS++;
+    if(ADMIN_TAPS>=5){ADMIN_TAPS=0;openAdminPanel();}
+  };
+  document.getElementById('adminClose').onclick=closeAdminPanel;
+}
+function closeAdminPanel(){document.getElementById('adminPanel').classList.remove('open');}
+async function openAdminPanel(){
+  if(!isAdmin())return;
+  const panel=document.getElementById('adminPanel');
+  const body=document.getElementById('adminBody');
+  panel.classList.add('open');
+  body.innerHTML='<div class="t-caption" style="padding:8px 0;">Loading…</div>';
+
+  // Backend info
+  let sharedCount=null,localCount=0;
+  try{
+    if(STORAGE_BACKEND==='supabase'&&SUPA){
+      const{count}=await SUPA.from('kv').select('*',{count:'exact',head:true});
+      sharedCount=count;
+    }
+  }catch(e){sharedCount='?';}
+  if(typeof localStorage!=='undefined'){
+    for(let i=0;i<localStorage.length;i++){
+      if((localStorage.key(i)||'').startsWith('introduced::'))localCount++;
+    }
+  }
+  const backendLabel=STORAGE_BACKEND==='supabase'?'Supabase (shared, realtime, auth-gated)':STORAGE_BACKEND==='localStorage'?'localStorage (this browser only) — Supabase not configured':STORAGE_BACKEND==='error'?('Error — '+SUPABASE_INIT_ERROR):'none';
+
+  body.innerHTML=`
+    <div class="admin-row">
+      <span class="k">Storage backend</span>
+      <span class="v">${esc(backendLabel)}</span>
+    </div>
+    <div class="admin-row">
+      <span class="k">Signed in as</span>
+      <span class="v">${esc(ME.name)} · ${esc(ME.inviteCode)}</span>
+    </div>
+    <div class="admin-row">
+      <span class="k">Records</span>
+      <span class="v">${sharedCount===null?'—':sharedCount+' shared'} · ${localCount} local</span>
+    </div>
+    ${STORAGE_BACKEND==='supabase'&&localCount>0?`
+    <div class="admin-row">
+      <span class="k">Migration</span>
+      <span class="v">Push this browser's local data into the shared database. Existing shared keys of the same name will be overwritten.</span>
+      <div class="a"><button class="admin-btn" id="admPush">Push local → shared (${localCount})</button></div>
+    </div>`:''}
+    <div class="admin-row">
+      <span class="k">Reset</span>
+      <span class="v">Wipe ${STORAGE_BACKEND==='supabase'?'the shared database':'this browser\'s local data'}. Everyone testing will be starting fresh. Requires typing "reset" to confirm.</span>
+      <div class="a"><button class="admin-btn danger" id="admReset">Reset ${STORAGE_BACKEND==='supabase'?'shared':'local'} data</button></div>
+    </div>
+  `;
+
+  const pushBtn=body.querySelector('#admPush');
+  if(pushBtn)pushBtn.onclick=async()=>{
+    if(!confirm('Push all local keys to the shared database?'))return;
+    pushBtn.disabled=true;pushBtn.textContent='Pushing…';
+    let n=0;
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k||!k.startsWith('introduced::'))continue;
+      const raw=localStorage.getItem(k);
+      const bareKey=k.slice('introduced::'.length);
+      await SUPA.from('kv').upsert({k:bareKey,v:raw,updated_at:new Date().toISOString()});
+      n++;
+    }
+    pushBtn.textContent='Pushed '+n;
+    toast('Pushed '+n+' records');
+  };
+
+  body.querySelector('#admReset').onclick=async()=>{
+    const answer=prompt('Type "reset" to wipe '+(STORAGE_BACKEND==='supabase'?'shared':'local')+' data.');
+    if(answer!=='reset')return;
+    if(STORAGE_BACKEND==='supabase'){
+      await SUPA.from('kv').delete().neq('k','');
+      toast('Shared data wiped');
+    }else{
+      const toRm=[];
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(k&&k.startsWith('introduced::'))toRm.push(k);
+      }
+      toRm.forEach(k=>localStorage.removeItem(k));
+      toast('Local data wiped');
+    }
+    closeAdminPanel();doSwitch();
+  };
+}
+
+// ═══ NAV WIRING ════════════════════════════════════════
+function initNav(){
+  document.querySelectorAll('.ni').forEach(ni=>{
+    ni.addEventListener('click',()=>{
+      const sc=ni.dataset.sc;
+      goScreen(sc);
+      if(sc==='home')setMode(MODE);
+      else if(sc==='intros')renderIntros();
+      else if(sc==='browse')renderBrowse();
+      else if(sc==='matches')renderMatchesScreen();
+      else if(sc==='wing'){MODE='wingman';renderWingHub();}
+    });
+  });
+}
+
+// ═══ MODE SWITCH ═══════════════════════════════════════
+function setMode(m){
+  MODE=m;
+  document.getElementById('mbUser').classList.toggle('active',m==='user');
+  document.getElementById('mbWing').classList.toggle('active',m==='wingman');
+  document.getElementById('userContent').style.display=m==='user'?'block':'none';
+  document.getElementById('wingContent').style.display=m==='wingman'?'block':'none';
+  if(m==='user')renderUserHome();
+  else renderWingHome();
+}
+
+// ═══ USER: HOME ════════════════════════════════════════
+async function renderUserHome(){
+  const cont=document.getElementById('userContent');
+  cont.innerHTML='<div class="empty"><span class="t-caption">Loading…</span></div>';
+  const [wms,pf,shareReqs,shortlists,grants]=await Promise.all([getMyWingmen(ME.id),getProfile(ME.id),getShareRequests(ME.id),getShortlists(ME.id),getGrants(ME.id)]);
+  const activeSl=shortlists.find(s=>!s.resolved);
+  let html='<div class="px" style="padding-top:4px;padding-bottom:16px;">';
+
+  // wingmen section
+  html+=`<div class="t-micro" style="margin-bottom:10px;">Your wingmen (${wms.length}/3)</div>`;
+  if(wms.length){
+    html+=`<div class="card" style="margin-bottom:14px;">`;
+    for(const w of wms){
+      const wm=await getPerson(w.wmId);
+      html+=`<div class="lr" style="cursor:default;">
+        <div class="av av-sm">${esc(ini(wm?.name||w.wmId))}</div>
+        <div class="lr-body">
+          <div class="lr-title">${esc(wm?.name||w.wmId)}</div>
+          <div class="lr-sub">${esc(w.wmId)}</div>
+        </div>
+        <span class="badge badge-grey">Wingman</span>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+  if(wms.length<3){
+    html+=`<div style="margin-bottom:18px;">
+      <label class="f-label">${wms.length?'Add another wingman':'Add a wingman — share their invite code'}</label>
+      <div style="display:flex;gap:8px;">
+        <input class="inp" id="addWmInp" placeholder="Their code" style="flex:1;font-size:14px;" autocomplete="off" spellcheck="false"/>
+        <button class="btn btn-rose btn-sm" id="addWmBtn">Add</button>
+      </div>
+      ${wms.length?`<div class="t-caption" style="margin-top:7px;font-size:12px;color:var(--ink3);">Wingmen from different parts of your life see different people.</div>`:''}
+    </div>`;
+  }
+
+  // share consent requests
+  if(shareReqs.length){
+    html+=`<div class="t-micro" style="margin-bottom:10px;">Needs your okay</div>`;
+    for(const rq of shareReqs){
+      const [fp,tp]=await Promise.all([getPerson(rq.from),getPerson(rq.to)]);
+      html+=`<div class="consent-card">
+        <div class="t-body" style="font-size:14px;line-height:1.5;"><strong>${esc(fp?.name||rq.from)}</strong> wants to show your profile to <strong>${esc(tp?.name||rq.to)}</strong>, a wingman they trust.</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-outline btn-sm cDeny" data-id="${rq.id}" style="flex:1;">Not now</button>
+          <button class="btn btn-ink btn-sm cOk" data-id="${rq.id}" style="flex:1;">Okay</button>
+        </div>
+      </div>`;
+    }
+    html+=`<div style="height:6px;"></div>`;
+  }
+
+  // shortlist from a wingman
+  if(activeSl){
+    const slWm=await getPerson(activeSl.wmId);
+    html+=`<div class="t-micro" style="margin-bottom:10px;">From ${esc(slWm?.name||activeSl.wmId)}</div>
+    <div class="card card-p" style="margin-bottom:16px;">
+      <div class="t-body" style="font-size:14px;line-height:1.5;">${activeSl.pick?'You pointed at someone. '+esc(slWm?.name||'Your wingman')+' will take it from there — the other side never knows.':'&ldquo;I&rsquo;ve been considering these for you. Any pull?&rdquo;'}</div>
+      <div class="slTiles"></div>
+    </div>`;
+  }
+
+  // sharing you've allowed
+  if(grants.length){
+    html+=`<div class="t-micro" style="margin-bottom:8px;">Profile sharing you've allowed</div><div class="card" style="margin-bottom:16px;">`;
+    for(const g of grants){
+      const gp=await getPerson(g.toId);
+      html+=`<div class="row-sb" style="padding:11px 18px;">
+        <span class="t-caption">${esc(gp?.name||g.toId)}</span>
+        <button class="btn btn-ghost btn-sm gRev" data-to="${esc(g.toId)}" style="font-size:12px;padding:6px 12px;">Revoke</button>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+
+  // profile section — the dater fills this themselves
+  const complete=profileComplete(pf);
+  const IAM=['Man','Woman','Non-binary'];
+  const INT=['Men','Women','Everyone'];
+  const LOOK=['Short term','Long term'];
+  const opt=(arr,cur)=>['<option value="">Choose…</option>'].concat(arr.map(o=>`<option value="${o}" ${cur===o?'selected':''}>${o}</option>`)).join('');
+  html+=`<div class="t-micro" style="margin-bottom:10px;">Your profile</div>
+    <div class="card card-p" style="margin-bottom:16px;">
+      <div class="row-sb" style="margin-bottom:12px;">
+        <div class="av av-md">${esc(ini(ME.name))}</div>
+        <span class="badge ${complete?'badge-matched':'badge-pending'}"><span class="dot ${complete?'dot-green':'dot-rose'}"></span>${complete?'Discoverable':'Finish to be discoverable'}</span>
+      </div>
+      <div style="margin-bottom:10px;"><label class="f-label">About you — a wingman will read this</label><textarea class="inp" id="mpBio" rows="3" style="font-size:14px;" placeholder="What you're like, what you're into, what you're hoping to find.">${esc(pf?.bio||'')}</textarea></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="flex:1;"><label class="f-label">Age</label><input class="inp" id="mpAge" type="number" min="18" max="99" inputmode="numeric" value="${esc(pf?.age||'')}" style="font-size:14px;"/></div>
+        <div style="flex:1;"><label class="f-label">Area <span style="color:var(--ink3);">(optional)</span></label><input class="inp" id="mpArea" value="${esc(pf?.area||'')}" placeholder="e.g. Bandra" style="font-size:14px;"/></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="flex:1;"><label class="f-label">I'm a</label><select class="inp" id="mpIam" style="font-size:14px;">${opt(IAM,pf?.iAm)}</select></div>
+        <div style="flex:1;"><label class="f-label">Interested in</label><select class="inp" id="mpInt" style="font-size:14px;">${opt(INT,pf?.interestedIn)}</select></div>
+      </div>
+      <div style="margin-bottom:14px;"><label class="f-label">Looking for</label><select class="inp" id="mpLook" style="font-size:14px;">${opt(LOOK,pf?.lookingFor)}</select></div>
+      <button class="btn btn-ink" id="mpSave" style="font-size:14px;">${complete?'Save profile':'Save & become discoverable'}</button>
+      <div class="t-caption" style="font-size:12px;color:var(--ink3);margin-top:10px;line-height:1.5;">Your profile can be seen by others browsing on Introduced, and by wingmen looking for someone to introduce. Approaches always come through a wingman — never a cold message.</div>
+    </div>`;
+
+  html+='</div>';
+  cont.innerHTML=html;
+
+  // profile save
+  const saveP=cont.querySelector('#mpSave');
+  if(saveP)saveP.addEventListener('click',async()=>{
+    const age=(cont.querySelector('#mpAge').value||'').trim();
+    const bio=cont.querySelector('#mpBio').value.trim();
+    const iAm=cont.querySelector('#mpIam').value;
+    const interestedIn=cont.querySelector('#mpInt').value;
+    const lookingFor=cont.querySelector('#mpLook').value;
+    const area=cont.querySelector('#mpArea').value.trim();
+    if(!bio||!age||!iAm||!interestedIn||!lookingFor){toast('Fill everything except area to be discoverable');return;}
+    const n=parseInt(age,10);
+    if(isNaN(n)||n<18||n>99){toast('Enter an age between 18 and 99');return;}
+    await saveProfile(ME.id,{bio,age:String(n),iAm,interestedIn,lookingFor,area});
+    toast('Profile saved');renderUserHome();
+  });
+
+  // shortlist tiles
+  if(activeSl){
+    const tilesWrap=cont.querySelector('.slTiles');
+    if(tilesWrap){
+      for(const pid of activeSl.personIds){
+        const [p,ppf]=await Promise.all([getPerson(pid),getProfile(pid)]);
+        const isPick=activeSl.pick===pid;
+        const t=el(`<div class="sl-tile ${isPick?'picked':''}">
+          <div class="av av-sm">${esc(ini(p?.name||pid))}</div>
+          <div class="lr-body">
+            <div class="lr-title" style="font-size:14px;">${esc(p?.name||pid)}${ppf?.age?`<span class="t-caption" style="font-weight:400;">, ${esc(ppf.age)}</span>`:''}</div>
+            <div class="lr-sub" style="white-space:normal;">${esc((ppf?.bio||'').slice(0,72))}</div>
+          </div>
+          ${isPick?`<span class="badge badge-pending" style="font-size:11px;">Your pull</span>`:''}
+        </div>`);
+        if(!activeSl.pick){
+          t.addEventListener('click',async()=>{
+            activeSl.pick=pid;await saveShortlist(activeSl);
+            toast('Told your wingman');renderUserHome();
+          });
+        }
+        tilesWrap.appendChild(t);
+      }
+    }
+  }
+  // consent + revoke
+  cont.querySelectorAll('.cOk').forEach(b=>b.addEventListener('click',async()=>{
+    const rq=shareReqs.find(r=>r.id===b.dataset.id);if(!rq)return;
+    await approveShare(rq);toast('Okay — they can show your profile');renderUserHome();
+  }));
+  cont.querySelectorAll('.cDeny').forEach(b=>b.addEventListener('click',async()=>{
+    const rq=shareReqs.find(r=>r.id===b.dataset.id);if(!rq)return;
+    await declineShare(rq);toast('Not shared');renderUserHome();
+  }));
+  cont.querySelectorAll('.gRev').forEach(b=>b.addEventListener('click',async()=>{
+    await revokeGrant(ME.id,b.dataset.to);toast('Revoked');renderUserHome();
+  }));
+
+  const addBtn=cont.querySelector('#addWmBtn');
+  if(addBtn){
+    addBtn.addEventListener('click',async()=>{
+      const code=(cont.querySelector('#addWmInp').value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+      const r=await linkWingman(ME.id,code);
+      if(r.ok){toast('Wingman added');renderUserHome();}else toast(r.msg);
+    });
+  }
+}
+
+// ═══ USER: INTROS ══════════════════════════════════════
+async function renderIntros(){
+  const cont=document.getElementById('introsBody');
+  cont.innerHTML='<div class="empty"><span class="t-caption">Loading…</span></div>';
+  const matches=await getMyMatches(ME.id);
+  const pending=matches.filter(m=>matchStatus(m)==='pending'&&(m.daterAId===ME.id||m.daterBId===ME.id));
+  if(!pending.length){
+    const [wms,sls,grants]=await Promise.all([getMyWingmen(ME.id),getShortlists(ME.id),getGrants(ME.id)]);
+    const waitingSl=sls.find(s=>!s.resolved&&!s.pick);
+    const lines=[];
+    if(waitingSl)lines.push('A shortlist is waiting for you on Home.');
+    if(wms.length)lines.push(wms.length===1?'1 wingman is looking out for you.':wms.length+' wingmen are looking out for you.');
+    if(grants.length)lines.push('Your profile can be shown by '+grants.length+' collaborating wingm'+(grants.length===1?'an':'en')+'.');
+    cont.innerHTML='';
+    cont.appendChild(el(`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="t-title" style="font-size:16px;">Nothing waiting on you</div>
+      <div class="t-caption" style="max-width:240px;">${lines.length?lines.map(esc).join('<br>'):'Add a wingman on Home to get started.'}</div>
+      ${wms.length&&wms.length<3?`<div class="t-caption" style="max-width:240px;font-size:12px;color:var(--ink3);margin-top:2px;">Wingmen from different parts of your life see different people.</div>`:''}
+    </div>`));
+    return;
+  }
+  cont.innerHTML='';
+  for(const m of pending){
+    const otherId=m.daterAId===ME.id?m.daterBId:m.daterAId;
+    const [other,opf,wmP]=await Promise.all([getPerson(otherId),getProfile(otherId),getPerson(m.wmXId)]);
+    const wmName=wmP?.name||m.wmXId;
+    const myA=m.approvals[ME.id];
+
+    const card=el(`<div class="intro-card">
+      <div class="intro-card-top">
+        <div class="row-sb" style="margin-bottom:16px;">
+          <div class="av av-lg">${esc(ini(other?.name||'?'))}</div>
+          <span class="badge badge-pending"><span class="dot dot-rose"></span>Waiting on you</span>
+        </div>
+        <div class="t-head-sm">${esc(other?.name||otherId)}${opf?.age?`<span class="t-caption" style="font-weight:400;">, ${esc(opf.age)}</span>`:''}</div>
+        <div class="t-caption" style="margin-top:2px;">${[opf?.iAm,opf?.lookingFor,opf?.area].filter(Boolean).map(esc).join(' · ')}</div>
+        <div class="t-body" style="margin-top:10px;font-size:14px;color:var(--ink2);">${esc(opf?.bio||'No bio shared yet.')}</div>
+        ${m.note?`<div class="conv-block"><div class="conv-label">Why ${esc(wmName)} thinks so</div><div class="conv-text">&ldquo;${esc(m.note)}&rdquo;</div></div>`:''}
+        <div class="t-micro" style="margin-top:10px;">${m.type==='cross'?'Cross-wingman intro by ':'Introduced by '}${esc(wmName)}</div>
+      </div>
+      <div class="intro-card-actions">
+        ${myA===null?`
+          <div class="action-row">
+            <button class="btn btn-danger btn-sm noBtn" style="flex:1;">Pass</button>
+            <button class="btn btn-ink btn-sm yesBtn" style="flex:2;">Yes, meet them</button>
+          </div>
+          <button class="btn btn-ghost btn-sm askBtn" style="width:100%;font-size:13px;">Ask your wingman a question</button>
+        `:myA===true?`
+          <div class="badge badge-matched" style="width:100%;justify-content:center;padding:12px;">You said yes ✓</div>
+        `:`
+          <div class="badge badge-declined" style="width:100%;justify-content:center;padding:12px;">You passed</div>
+        `}
+      </div>
+    </div>`);
+
+    if(myA===null){
+      card.querySelector('.yesBtn').addEventListener('click',async()=>{
+        await setApproval(m.id,ME.id,true);toast('You said yes ✓');renderIntros();
+      });
+      card.querySelector('.noBtn').addEventListener('click',async()=>{
+        await setApproval(m.id,ME.id,false);toast('Passed');renderIntros();
+      });
+      card.querySelector('.askBtn').addEventListener('click',()=>openMatchSheet(m.id));
+    }
+    cont.appendChild(card);
+  }
+}
+
+// ═══ USER: MATCHES ═════════════════════════════════════
+async function renderMatchesScreen(){
+  const cont=document.getElementById('matchesBody');
+  cont.innerHTML='<div class="empty"><span class="t-caption">Loading…</span></div>';
+  const matches=await getMyMatches(ME.id);
+  const done=matches.filter(m=>matchStatus(m)!=='pending'&&(m.daterAId===ME.id||m.daterBId===ME.id));
+  if(!done.length){
+    cont.innerHTML='';
+    cont.appendChild(el(`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+      <div class="t-title" style="font-size:16px;">No matches yet</div>
+      <div class="t-caption" style="max-width:220px;">When you and someone both say yes, they'll appear here.</div>
+    </div>`));
+    return;
+  }
+  cont.innerHTML='<div class="card" style="margin:6px 18px 0;"></div>';
+  const list=cont.querySelector('.card');
+  for(const m of done){
+    const st=matchStatus(m);
+    const otherId=m.daterAId===ME.id?m.daterBId:m.daterAId;
+    const [other,wmPn]=await Promise.all([getPerson(otherId),getPerson(m.wmXId)]);
+    const row=el(`<div class="lr">
+      <div class="av av-sm ${st==='matched'?'':'av-green'}">${esc(ini(other?.name||'?'))}</div>
+      <div class="lr-body">
+        <div class="lr-title">${esc(other?.name||otherId)}</div>
+        <div class="lr-sub">${st==='matched'?'Introduced by '+esc(wmPn?.name||m.wmXId)+' · Tap to chat':'Didn\'t move forward'}</div>
+      </div>
+      <span class="badge badge-${st==='matched'?'matched':'declined'}">
+        <span class="dot dot-${st==='matched'?'green':'grey'}"></span>${st==='matched'?'Matched':'Passed'}
+      </span>
+    </div>`);
+    if(st==='matched')row.addEventListener('click',()=>openMatchSheet(m.id));
+    list.appendChild(row);
+  }
+}
+
+// ═══ WINGMAN: HOME TOGGLE ══════════════════════════════
+async function renderWingHome(){
+  const cont=document.getElementById('wingContent');
+  cont.innerHTML='<div class="empty"><span class="t-caption">Loading…</span></div>';
+  const daters=await getMyDaters(ME.id);
+  const rec=await wmRecord(ME.id);
+  const slots=await wmSlots(ME.id);
+  const hit=rec.resolved?Math.round(rec.matched/rec.resolved*100):null;
+  let calHtml='';
+  for(const lvl of[2,1,0]){
+    const c=rec.cal[lvl];
+    if(c&&c.n)calHtml+=`<div class="row-sb" style="padding:8px 0;border-bottom:1px solid var(--border);"><span class="t-caption">${CONF[lvl]}</span><span class="t-caption" style="color:var(--ink);font-weight:500;">${c.hit} of ${c.n} matched</span></div>`;
+  }
+
+  cont.innerHTML=`<div class="px" style="padding-top:4px;padding-bottom:16px;">
+    <div class="t-micro" style="margin-bottom:10px;">Your wingman code</div>
+    <div class="card card-p" style="margin-bottom:14px;">
+      <div class="t-micro" style="color:var(--rose);margin-bottom:4px;">Share this with people who want your help</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-.3px;">${esc(ME.inviteCode)}</div>
+    </div>
+    <div class="t-micro" style="margin-bottom:10px;">Your record</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div class="card" style="padding:14px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--rose);">${rec.proposed}</div>
+        <div class="t-caption" style="font-size:12px;">proposed</div>
+      </div>
+      <div class="card" style="padding:14px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--rose);">${rec.matched}</div>
+        <div class="t-caption" style="font-size:12px;">matched</div>
+      </div>
+      <div class="card" style="padding:14px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--rose);">${hit===null?'—':hit+'%'}</div>
+        <div class="t-caption" style="font-size:12px;">hit rate</div>
+      </div>
+    </div>
+    <div class="card card-p" style="margin-top:8px;">
+      <div class="row-sb">
+        <span class="t-caption" style="color:var(--ink);font-weight:500;">Introduction slots</span>
+        <div class="slot-dots">${[0,1,2].map(i=>`<span class="slot ${i<slots.open?'spent':''}"></span>`).join('')}</div>
+      </div>
+      <div class="t-caption" style="font-size:12px;margin-top:4px;color:var(--ink3);">${slots.free} of 3 open. Each proposal spends one until it resolves.</div>
+    </div>
+    ${calHtml?`<div class="t-micro" style="margin:16px 0 6px;">Your calibration</div><div class="card" style="padding:4px 18px;">${calHtml}</div><div class="t-caption" style="font-size:12px;color:var(--ink3);margin-top:6px;">Private to you — how your reads have played out.</div>`:''}
+    <div class="t-caption" style="margin-top:14px;line-height:1.6;">${daters.length} dater${daters.length===1?'':'s'} in your care. The <strong>Wingman</strong> tab is where the work happens.</div>
+  </div>`;
+}
+
+// ═══ WINGMAN: HUB ══════════════════════════════════════
+async function renderWingHub(){
+  document.getElementById('wmBadge').textContent=ME.inviteCode;
+  const TABS=[
+    {id:'daters',label:'Daters'},
+    {id:'stash',label:'Book'},
+    {id:'collabs',label:'Collaborators'},
+    {id:'propose',label:'Propose'},
+    {id:'pending',label:'Pending'},
+  ];
+  const tabBar=document.getElementById('wmTabs');
+  tabBar.innerHTML='';
+  TABS.forEach(t=>{
+    const tab=el(`<div class="wm-tab ${WMTAB===t.id?'active':''}" data-tab="${t.id}">${t.label}</div>`);
+    tab.addEventListener('click',()=>{WMTAB=t.id;CROSS=false;renderWingHub();});
+    tabBar.appendChild(tab);
+  });
+  const body=document.getElementById('wmBody');
+  body.innerHTML='<div class="empty"><span class="t-caption">Loading…</span></div>';
+  if(WMTAB==='daters')await wmDaters(body);
+  else if(WMTAB==='stash')await wmStash(body);
+  else if(WMTAB==='collabs')await wmCollabs(body);
+  else if(WMTAB==='propose')await wmPropose(body);
+  else if(WMTAB==='pending')await wmPending(body);
+}
+
+// ── Wingman: Daters tab ─────────────────────────────
+async function wmDaters(body){
+  body.innerHTML='';
+  const daters=await getMyDaters(ME.id);
+  if(!daters.length){
+    body.appendChild(el(`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <div class="t-title" style="font-size:16px;">No daters yet</div>
+      <div class="t-caption" style="max-width:240px;">Share your code <strong>${esc(ME.inviteCode)}</strong> with someone who wants your help. They'll appear here after they add you as a wingman.</div>
+    </div>`));
+    return;
+  }
+  for(const d of daters){
+    const [person,pf]=await Promise.all([getPerson(d.daterId),getProfile(d.daterId)]);
+    const ready=profileComplete(pf);
+    const wrap=el(`<div style="padding:0 18px 10px;"></div>`);
+    const card=el(`<div class="card">
+      <div class="card-p" style="border-bottom:1px solid var(--border);">
+        <div class="row-sb">
+          <div class="row-c">
+            <div class="av av-md">${esc(ini(person?.name||d.daterId))}</div>
+            <div>
+              <div class="t-title" style="font-size:15px;">${esc(person?.name||d.daterId)}${pf?.age?`<span class="t-caption" style="font-weight:400;">, ${esc(pf.age)}</span>`:''}</div>
+              <span class="badge ${ready?'badge-matched':'badge-pending'}" style="margin-top:3px;">
+                <span class="dot ${ready?'dot-green':'dot-rose'}"></span>${ready?'Profile ready':'Waiting on their profile'}
+              </span>
+            </div>
+          </div>
+          ${ready?`<button class="btn btn-ghost btn-sm slBtn" style="font-size:12px;">Shortlist</button>`:''}
+        </div>
+        ${ready?`<div class="t-caption" style="margin-top:10px;line-height:1.5;">${esc((pf.bio||'').slice(0,140))}</div>`:`<div class="t-caption" style="margin-top:10px;font-size:12px;color:var(--ink3);">They fill their own profile now. Nudge them to complete it on their Home screen — until then you can't introduce them.</div>`}
+      </div>
+      <div class="slArea"></div>
+    </div>`);
+    if(ready){
+      const sls=(await getShortlists(d.daterId)).filter(x=>x.wmId===ME.id&&!x.resolved);
+      const active=sls[0];
+      const slArea=card.querySelector('.slArea');
+      if(active){
+        if(active.pick){
+          const pk=await getPerson(active.pick);
+          const box=el(`<div style="padding:12px 20px 16px;">
+            <div class="t-caption" style="margin-bottom:9px;"><strong>${esc(person?.name||d.daterId)}</strong> felt a pull toward <strong>${esc(pk?.name||active.pick)}</strong>.</div>
+            <button class="btn btn-rose btn-sm goBtn" style="font-size:13px;">Propose this introduction</button>
+          </div>`);
+          box.querySelector('.goBtn').addEventListener('click',()=>proposeFromPick(active,d.daterId));
+          slArea.appendChild(box);
+        }else{
+          slArea.appendChild(el(`<div style="padding:10px 20px 14px;">
+            <div class="t-caption" style="font-size:12px;color:var(--ink3);">Shortlist sent · waiting for any pull.</div>
+          </div>`));
+        }
+      }
+      const slBtn=card.querySelector('.slBtn');
+      if(slBtn)slBtn.addEventListener('click',()=>openShortlistSheet(d.daterId,person?.name||d.daterId));
+    }
+    wrap.appendChild(card);body.appendChild(wrap);
+  }
+}
+
+// ── Shortlist builder ───────────────────────────────
+async function openShortlistSheet(daterId,daterName){
+  const book=(await getStash(ME.id)).filter(s=>s.id!==daterId);
+  const sharedIn=await getSharedWithMe(ME.id);
+  const cand=book.map(s=>({id:s.id,name:s.name,pf:s.pf,src:'book'}));
+  for(const s of sharedIn){
+    if(s.daterId===daterId)continue;
+    if(cand.some(c=>c.id===s.daterId))continue;
+    const [p,pf]=await Promise.all([getPerson(s.daterId),getProfile(s.daterId)]);
+    if(pf)cand.push({id:s.daterId,name:p?.name||s.daterId,pf,src:'shared'});
+  }
+  openSheet(body=>{
+    body.appendChild(el(`<div>
+      <div class="t-micro" style="color:var(--rose);margin-bottom:4px;">Shortlist</div>
+      <div class="t-head-sm">For ${esc(daterName)}</div>
+      <div class="t-caption" style="margin-top:4px;">Pick 3–4 people you've been considering. ${esc(daterName.split(' ')[0])} can point at any pull — you still make the introduction, and the other side never knows who pointed.</div>
+    </div>`));
+    if(cand.length<3){
+      body.appendChild(el(`<div class="t-caption" style="margin-top:14px;">You can reach ${cand.length} ${cand.length===1?'person':'people'} right now — a shortlist needs at least 3. Build more profiles or ask a collaborator to share.</div>`));
+      return;
+    }
+    const picked=new Set();
+    const wrap=el(`<div style="margin-top:8px;"></div>`);
+    for(const c of cand){
+      const t=el(`<div class="sl-tile">
+        <div class="av av-sm">${esc(ini(c.name))}</div>
+        <div class="lr-body">
+          <div class="lr-title" style="font-size:14px;">${esc(c.name)}${c.pf.age?`<span class="t-caption" style="font-weight:400;">, ${esc(c.pf.age)}</span>`:''}</div>
+          <div class="lr-sub">${c.src==='shared'?'Shared by a collaborator':'In your Book'}</div>
+        </div>
+      </div>`);
+      t.addEventListener('click',()=>{
+        if(picked.has(c.id))picked.delete(c.id);
+        else{
+          if(picked.size>=4){toast('Four at most — it\'s a shortlist');return;}
+          picked.add(c.id);
+        }
+        t.classList.toggle('picked',picked.has(c.id));
+      });
+      wrap.appendChild(t);
+    }
+    body.appendChild(wrap);
+    const send=el(`<button class="btn btn-rose" style="margin-top:16px;">Send shortlist</button>`);
+    send.addEventListener('click',async()=>{
+      if(picked.size<3){toast('Pick at least 3');return;}
+      await saveShortlist({id:uid(),daterId,wmId:ME.id,personIds:[...picked],pick:null,resolved:false,at:now()});
+      toast('Shortlist sent to '+daterName.split(' ')[0]);
+      closeSheet();renderWingHub();
+    });
+    body.appendChild(send);
+  });
+}
+
+// ── Propose from a shortlist pick ───────────────────
+async function proposeFromPick(slist,daterId){
+  const pickId=slist.pick;
+  const inBook=(await getStash(ME.id)).some(s=>s.id===pickId);
+  let theirWm=null;
+  if(!inBook){
+    const sharedIn=await getSharedWithMe(ME.id);
+    const sh=sharedIn.find(s=>s.daterId===pickId);
+    if(!sh){toast('That profile is no longer shared with you');return;}
+    theirWm=sh.from;
+  }
+  const pk=await getPerson(pickId);
+  openSheet(body=>{
+    body.appendChild(el(`<div>
+      <div class="t-micro" style="color:var(--rose);margin-bottom:4px;">From the shortlist</div>
+      <div class="t-head-sm">Introduce them</div>
+      <div class="t-caption" style="margin-top:4px;">${esc(pk?.name||pickId)} came from your shortlist. Your vouch still carries it.</div>
+      <div style="margin-top:14px;margin-bottom:10px;"><label class="f-label">Why them? Both will read this.</label><textarea class="inp" id="convPk" rows="2" style="font-size:14px;" placeholder="Two or three honest sentences."></textarea></div>
+      <div style="margin-bottom:16px;"><label class="f-label">Your private read</label><div class="seg">${CONF.map((c,i)=>`<div class="seg-btn ${i===1?'active':''}" data-c="${i}">${c}</div>`).join('')}</div></div>
+    </div>`));
+    let conf=1;
+    body.querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>{
+      conf=+b.dataset.c;
+      body.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active',x===b));
+    }));
+    const go=el(`<button class="btn btn-rose">${theirWm?'Propose cross-introduction':'Present this introduction'}</button>`);
+    go.addEventListener('click',async()=>{
+      const note=body.querySelector('#convPk').value.trim();
+      if(!note){toast('Write why — that\'s the vouch');return;}
+      const capMsg=await checkCaps(ME.id,daterId,pickId);
+      if(capMsg){toast(capMsg);return;}
+      if(theirWm)await createMatch({type:'cross',daterAId:daterId,daterBId:pickId,wmXId:ME.id,wmYId:theirWm,note,confidence:conf});
+      else await createMatch({type:'single',daterAId:daterId,daterBId:pickId,wmXId:ME.id,note,confidence:conf});
+      slist.resolved=true;await saveShortlist(slist);
+      toast('Introduction sent ✓');closeSheet();WMTAB='pending';renderWingHub();
+    });
+    body.appendChild(go);
+  });
+}
+
+// ── Wingman: Stash tab ──────────────────────────────
+async function wmStash(body){
+  body.innerHTML='';
+  const stash=await getStash(ME.id);
+  if(!stash.length){
+    body.appendChild(el(`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+      <div class="t-title" style="font-size:16px;">Your Book is empty</div>
+      <div class="t-caption">Build a profile for one of your daters in the Daters tab.</div>
+    </div>`));
+    return;
+  }
+  // care-sort: who needs you first
+  for(const s of stash){
+    const ms=await getMyMatches(s.id);
+    const asDater=ms.filter(m=>m.daterAId===s.id||m.daterBId===s.id);
+    s.pending=asDater.filter(m=>matchStatus(m)==='pending').length;
+    const last=asDater.length?Math.max(...asDater.map(m=>m.createdAt)):(s.pf.createdAt||now());
+    s.waitDays=Math.floor((now()-last)/86400000);
+  }
+  stash.sort((a,b)=>(a.pending-b.pending)||(b.waitDays-a.waitDays));
+  body.appendChild(el(`<div class="t-caption" style="padding:0 20px 8px;font-size:12px;color:var(--ink3);">Sorted by who needs you.</div>`));
+  const grid=el(`<div class="stash-grid"></div>`);
+  for(const s of stash){
+    grid.appendChild(el(`<div class="stash-tile">
+      <div class="av av-sm" style="margin-bottom:8px;">${esc(ini(s.name))}</div>
+      <div class="t-title" style="font-size:14px;">${esc(s.name)}${s.pf.age?`<span class="t-caption" style="font-weight:400;">, ${esc(s.pf.age)}</span>`:''}</div>
+      <div class="t-caption" style="font-size:12px;margin-top:3px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;">${esc(s.pf.bio||'No bio')}</div>
+      <span class="badge ${s.pending?'badge-matched':'badge-pending'}" style="margin-top:6px;font-size:11px;align-self:flex-start;">
+        <span class="dot ${s.pending?'dot-green':'dot-rose'}"></span>${s.pending?s.pending+' in play':'Waiting '+s.waitDays+'d'}
+      </span>
+    </div>`));
+  }
+  body.appendChild(grid);
+}
+
+// ── Wingman: Collaborators tab ──────────────────────
+async function wmCollabs(body){
+  body.innerHTML='';
+  const addCard=el(`<div style="padding:0 18px 12px;">
+    <div class="card card-p">
+      <div class="t-title" style="font-size:15px;margin-bottom:3px;">Connect with a wingman</div>
+      <div class="t-caption" style="margin-bottom:12px;">Share profiles and run cross-introductions together.</div>
+      <div style="display:flex;gap:8px;">
+        <input class="inp collabInp" placeholder="Their invite code" style="flex:1;font-size:14px;" autocomplete="off" spellcheck="false"/>
+        <button class="btn btn-rose btn-sm collabBtn">Connect</button>
+      </div>
+    </div>
+  </div>`);
+  addCard.querySelector('.collabBtn').addEventListener('click',async()=>{
+    const code=(addCard.querySelector('.collabInp').value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+    const r=await linkCollab(ME.id,code);
+    if(r.ok){toast('Connected');renderWingHub();}else toast(r.msg);
+  });
+  body.appendChild(addCard);
+
+  const collabs=await getCollabs(ME.id);
+  if(!collabs.length)return;
+
+  const myStash=await getStash(ME.id);
+  const sharedByMe=await getSharedByMe(ME.id);
+
+  for(const cId of collabs){
+    const [cp,sharedIn]=await Promise.all([getPerson(cId),getSharedWithMe(ME.id)]);
+    const sharedToThis=sharedByMe.filter(s=>s.to===cId).map(s=>s.daterId);
+    const theirShared=sharedIn.filter(s=>s.from===cId);
+
+    const card=el(`<div style="padding:0 18px 10px;">
+      <div class="card">
+        <div class="card-p" style="border-bottom:1px solid var(--border);">
+          <div class="row-c">
+            <div class="av av-md av-green">${esc(ini(cp?.name||cId))}</div>
+            <div>
+              <div class="t-title" style="font-size:15px;">${esc(cp?.name||cId)}</div>
+              <div class="t-caption">${esc(cId)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-p">
+          <div class="t-micro" style="margin-bottom:8px;">Share from your Book</div>
+          <div class="shareRows"></div>
+          <div class="t-micro" style="margin-top:14px;margin-bottom:6px;">Shared with you</div>
+          <div class="theirRows"></div>
+        </div>
+      </div>
+    </div>`);
+
+    const shareRows=card.querySelector('.shareRows');
+    if(!myStash.length){
+      shareRows.appendChild(el(`<div class="t-caption">Build a profile first.</div>`));
+    }
+    for(const s of myStash){
+      let state=sharedToThis.includes(s.id)?'shared':'none';
+      if(state==='none'){
+        const reqs=await getShareRequests(s.id);
+        if(reqs.some(r=>r.from===ME.id&&r.to===cId))state='asked';
+        else if(await getGrant(s.id,cId))state='allowed';
+      }
+      const row=el(`<div class="row-sb" style="padding:5px 0;">
+        <span class="t-caption">${esc(s.name)}</span>
+        ${state==='shared'?`<span class="badge badge-matched" style="font-size:11px;">Shared ✓</span>`
+         :state==='asked'?`<span class="badge badge-amber" style="font-size:11px;">Asked ${esc(s.name.split(' ')[0])}</span>`
+         :`<button class="btn btn-ghost btn-sm sBtn" style="font-size:12px;padding:6px 12px;">Share</button>`}
+      </div>`);
+      if(state==='none'||state==='allowed'){
+        row.querySelector('.sBtn').addEventListener('click',async()=>{
+          if(state==='allowed'){
+            await shareProfile(ME.id,cId,s.id);
+            toast('Shared '+s.name);
+          }else{
+            await requestShare(ME.id,cId,s.id);
+            toast('Asked '+s.name.split(' ')[0]+' first — they\'ll okay it from their side');
+          }
+          renderWingHub();
+        });
+      }
+      shareRows.appendChild(row);
+    }
+
+    const theirRows=card.querySelector('.theirRows');
+    if(!theirShared.length){
+      theirRows.appendChild(el(`<div class="t-caption">Nothing yet.</div>`));
+    }
+    for(const s of theirShared){
+      theirRows.appendChild(el(`<div class="t-caption" style="padding:3px 0;">· ${esc(s.daterId)}</div>`));
+    }
+
+    body.appendChild(card);
+  }
+}
+
+// ── Wingman: Propose tab ────────────────────────────
+async function wmPropose(body){
+  body.innerHTML='';
+  // type selector
+  const sel=el(`<div style="display:flex;gap:8px;padding:4px 18px 14px;">
+    <button class="btn btn-sm ${!CROSS?'btn-ink':'btn-ghost'}" id="pSingle">Single wingman</button>
+    <button class="btn btn-sm ${CROSS?'btn-ink':'btn-ghost'}" id="pCross">Cross-wingman</button>
+  </div>`);
+  sel.querySelector('#pSingle').addEventListener('click',()=>{CROSS=false;wmPropose(body);});
+  sel.querySelector('#pCross').addEventListener('click',()=>{CROSS=true;wmPropose(body);});
+  body.appendChild(sel);
+  if(CROSS)await proposeCross(body);
+  else await proposeSingle(body);
+}
+
+async function proposeSingle(body){
+  const stash=await getStash(ME.id);
+  const slots=await wmSlots(ME.id);
+  if(stash.length<2){
+    body.appendChild(el(`<div class="empty" style="padding-top:20px;">
+      <div class="t-title" style="font-size:15px;">Need two profiles</div>
+      <div class="t-caption">Build profiles for at least 2 of your daters first.</div>
+    </div>`));return;
+  }
+  const opts=stash.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  const card=el(`<div style="padding:0 18px;">
+    <div class="card card-p">
+      <div class="row-sb" style="margin-bottom:3px;">
+        <div class="t-title" style="font-size:15px;">Introduce two people</div>
+        <div class="slot-dots">${[0,1,2].map(i=>`<span class="slot ${i<slots.open?'spent':''}"></span>`).join('')}</div>
+      </div>
+      <div class="t-caption" style="margin-bottom:14px;">${slots.free} of 3 slots open. An introduction spends one until it resolves.</div>
+      <div style="margin-bottom:10px;"><label class="f-label">Person A</label><select class="inp" id="selA" style="font-size:14px;">${opts}</select></div>
+      <div style="margin-bottom:10px;"><label class="f-label">Person B</label><select class="inp" id="selB" style="font-size:14px;">${opts}</select></div>
+      <div style="margin-bottom:10px;"><label class="f-label">Why them? Both will read this.</label><textarea class="inp" id="convInp" rows="2" style="font-size:14px;" placeholder="Two or three honest sentences."></textarea></div>
+      <div style="margin-bottom:16px;"><label class="f-label">Your private read</label><div class="seg">${CONF.map((c,i)=>`<div class="seg-btn ${i===1?'active':''}" data-c="${i}">${c}</div>`).join('')}</div></div>
+      <button class="btn btn-rose" id="propBtn">Present this introduction</button>
+    </div>
+  </div>`);
+  let conf=1;
+  card.querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>{
+    conf=+b.dataset.c;
+    card.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active',x===b));
+  }));
+  card.querySelector('#propBtn').addEventListener('click',async()=>{
+    const a=card.querySelector('#selA').value;
+    const b=card.querySelector('#selB').value;
+    const note=card.querySelector('#convInp').value.trim();
+    if(a===b){toast('Pick two different people');return;}
+    if(!note){toast('Write why — that\'s the vouch');return;}
+    const capMsg=await checkCaps(ME.id,a,b);
+    if(capMsg){toast(capMsg);return;}
+    await createMatch({type:'single',daterAId:a,daterBId:b,wmXId:ME.id,note,confidence:conf});
+    toast('Introduction sent ✓');WMTAB='pending';renderWingHub();
+  });
+  body.appendChild(card);
+}
+
+async function proposeCross(body){
+  const myStash=await getStash(ME.id);
+  const sharedIn=await getSharedWithMe(ME.id);
+  const theirOptions=[];
+  for(const s of sharedIn){
+    const [person,pf]=await Promise.all([getPerson(s.daterId),getProfile(s.daterId)]);
+    if(pf)theirOptions.push({id:s.daterId,name:person?.name||s.daterId,wmId:s.from});
+  }
+  if(!myStash.length||!theirOptions.length){
+    body.appendChild(el(`<div class="empty" style="padding-top:20px;">
+      <div class="t-title" style="font-size:15px;">Not enough to work with</div>
+      <div class="t-caption" style="max-width:230px;">You need someone in your Book, and a collaborator must share a profile with you first.</div>
+    </div>`));return;
+  }
+  const slots=await wmSlots(ME.id);
+  const myOpts=myStash.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  const theirOpts=theirOptions.map(s=>`<option value="${s.id}" data-wm="${s.wmId}">${esc(s.name)}</option>`).join('');
+  const card=el(`<div style="padding:0 18px;">
+    <div class="card card-p">
+      <div class="row-sb" style="margin-bottom:3px;">
+        <div class="t-title" style="font-size:15px;">Cross-wingman introduction</div>
+        <div class="slot-dots">${[0,1,2].map(i=>`<span class="slot ${i<slots.open?'spent':''}"></span>`).join('')}</div>
+      </div>
+      <div class="t-caption" style="margin-bottom:14px;">All four must say yes. ${slots.free} of 3 slots open.</div>
+      <div style="margin-bottom:10px;"><label class="f-label">Your person</label><select class="inp" id="selMine" style="font-size:14px;">${myOpts}</select></div>
+      <div style="margin-bottom:10px;"><label class="f-label">Their person</label><select class="inp" id="selTheirs" style="font-size:14px;">${theirOpts}</select></div>
+      <div style="margin-bottom:10px;"><label class="f-label">Why them? Both daters will read this.</label><textarea class="inp" id="convInpX" rows="2" style="font-size:14px;" placeholder="Two or three honest sentences."></textarea></div>
+      <div style="margin-bottom:16px;"><label class="f-label">Your private read</label><div class="seg">${CONF.map((c,i)=>`<div class="seg-btn ${i===1?'active':''}" data-c="${i}">${c}</div>`).join('')}</div></div>
+      <button class="btn btn-rose" id="propCrossBtn">Propose cross-introduction</button>
+    </div>
+  </div>`);
+  let conf=1;
+  card.querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>{
+    conf=+b.dataset.c;
+    card.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active',x===b));
+  }));
+  card.querySelector('#propCrossBtn').addEventListener('click',async()=>{
+    const mine=card.querySelector('#selMine').value;
+    const theirsSel=card.querySelector('#selTheirs');
+    const theirs=theirsSel.value;
+    const theirWm=theirsSel.selectedOptions[0].dataset.wm;
+    const note=card.querySelector('#convInpX').value.trim();
+    if(!note){toast('Write why — that\'s the vouch');return;}
+    const capMsg=await checkCaps(ME.id,mine,theirs);
+    if(capMsg){toast(capMsg);return;}
+    await createMatch({type:'cross',daterAId:mine,daterBId:theirs,wmXId:ME.id,wmYId:theirWm,note,confidence:conf});
+    toast('Proposed ✓');WMTAB='pending';renderWingHub();
+  });
+  body.appendChild(card);
+}
+
+// ── Wingman: Pending tab ────────────────────────────
+async function wmPending(body){
+  body.innerHTML='';
+  const [matches,apprReqs]=await Promise.all([getMyMatches(ME.id),getApproachRequests(ME.id)]);
+  const mine=matches.filter(m=>m.wmXId===ME.id||m.wmYId===ME.id);
+
+  // Requests from your daters to approach someone they found while browsing
+  if(apprReqs.length){
+    body.appendChild(el(`<div class="t-micro" style="padding:2px 20px 8px;">Your daters asked you to approach</div>`));
+    for(const r of apprReqs){
+      const [dp,tp,tpf]=await Promise.all([getPerson(r.daterId),getPerson(r.targetId),getProfile(r.targetId)]);
+      const reach=await wmReaches(ME.id,r.targetId);
+      const reachLine=reach.kind==='direct'?'You have them in your Book':reach.kind==='bridged'?'Reachable via a collaborator':'You don\'t reach them yet';
+      const c=el(`<div style="padding:0 18px 10px;"><div class="card card-p">
+        <div class="t-body" style="font-size:14px;line-height:1.5;"><strong>${esc(dp?.name||r.daterId)}</strong> wants you to approach <strong>${esc(tp?.name||r.targetId)}</strong> for them.</div>
+        <div class="t-caption" style="font-size:12px;color:var(--ink3);margin-top:3px;">${esc(reachLine)}</div>
+        ${r.note?`<div class="conv-block" style="margin-top:10px;"><div class="conv-label">${esc(dp?.name?dp.name.split(' ')[0]:'They')} said</div><div class="conv-text">&ldquo;${esc(r.note)}&rdquo;</div></div>`:''}
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn btn-outline btn-sm apDismiss" style="flex:1;">Dismiss</button>
+          <button class="btn btn-rose btn-sm apMake" style="flex:2;">Approach for them</button>
+        </div>
+      </div></div>`);
+      c.querySelector('.apMake').addEventListener('click',()=>approachForDater(r,tp?.name||r.targetId));
+      c.querySelector('.apDismiss').addEventListener('click',async()=>{await closeApproachRequest(ME.id,r.id);toast('Dismissed');renderWingHub();});
+      body.appendChild(c);
+    }
+    body.appendChild(el(`<div style="height:4px;"></div>`));
+  }
+
+  if(!mine.length&&!apprReqs.length){
+    body.appendChild(el(`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <div class="t-title" style="font-size:16px;">Nothing pending</div>
+      <div class="t-caption">Introductions you propose, and approaches your daters ask for, appear here.</div>
+    </div>`));return;
+  }
+  if(!mine.length)return;
+  const list=el(`<div class="card" style="margin:0 18px;"></div>`);
+  for(const m of mine){
+    const st=matchStatus(m);
+    const [a,b]=await Promise.all([getPerson(m.daterAId),getPerson(m.daterBId)]);
+    const openQs=m.questions.filter(q=>q.toWmId===ME.id&&!q.answer).length;
+    const row=el(`<div class="lr">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--rose-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </div>
+      <div class="lr-body">
+        <div class="lr-title">${esc(a?.name||m.daterAId)} &amp; ${esc(b?.name||m.daterBId)}</div>
+        <div class="lr-sub">${m.type==='cross'?'Cross · ':''}${openQs?openQs+' question waiting':'No open questions'}</div>
+      </div>
+      <span class="badge badge-${st}"><span class="dot dot-${st==='matched'?'green':st==='declined'?'grey':'rose'}"></span>${st}</span>
+    </div>`);
+    row.addEventListener('click',()=>openMatchSheet(m.id));
+    list.appendChild(row);
+  }
+  body.appendChild(list);
+}
+
+// Wingman fulfils a dater's approach request → note-carrying single intro
+async function approachForDater(req,targetName){
+  const dp=await getPerson(req.daterId);
+  openSheet(body=>{
+    body.appendChild(el(`<div>
+      <div class="t-micro" style="color:var(--rose);margin-bottom:4px;">Approach</div>
+      <div class="t-head-sm">${esc(dp?.name||req.daterId)} → ${esc(targetName)}</div>
+      <div class="t-caption" style="margin-top:4px;">Your vouch carries it. ${esc(targetName.split(' ')[0])} decides and can consult their own wingman.</div>
+      <div style="margin-top:14px;margin-bottom:10px;"><label class="f-label">Your note — both sides read this</label><textarea class="inp" id="afNote" rows="3" style="font-size:14px;" placeholder="Why these two."></textarea></div>
+      <div style="margin-bottom:16px;"><label class="f-label">Your private read</label><div class="seg">${CONF.map((c,i)=>`<div class="seg-btn ${i===1?'active':''}" data-c="${i}">${c}</div>`).join('')}</div></div>
+    </div>`));
+    let conf=1;
+    body.querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>{conf=+b.dataset.c;body.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active',x===b));}));
+    const go=el(`<button class="btn btn-rose">Send approach</button>`);
+    go.addEventListener('click',async()=>{
+      const note=body.querySelector('#afNote').value.trim();
+      if(!note){toast('Write a note — that\'s the vouch');return;}
+      const capMsg=await checkCaps(ME.id,req.daterId,req.targetId);
+      if(capMsg){toast(capMsg);return;}
+      await createMatch({type:'single',daterAId:req.daterId,daterBId:req.targetId,wmXId:ME.id,note,confidence:conf});
+      await closeApproachRequest(ME.id,req.id);
+      toast('Approach sent ✓');closeSheet();WMTAB='pending';renderWingHub();
+    });
+    body.appendChild(go);
+  });
+}
+
+// ═══ BROWSE (everyone) ═════════════════════════════════
+async function renderBrowse(){
+  const cont=document.getElementById('browseBody');
+  cont.innerHTML='<div class="empty"><span class="t-caption">Loading…</span></div>';
+  const dir=(await getDirectory()).filter(d=>d.id!==ME.id);
+  if(!dir.length){
+    cont.innerHTML='';
+    cont.appendChild(el(`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+      <div class="t-title" style="font-size:16px;">No one to browse yet</div>
+      <div class="t-caption" style="max-width:230px;">People appear here once they've completed their profile. Yours counts too — finish it on Home.</div>
+    </div>`));
+    return;
+  }
+  cont.innerHTML='';
+  cont.appendChild(el(`<div class="t-caption" style="padding:0 20px 10px;font-size:12px;color:var(--ink3);">Everyone with a complete profile. An approach always goes through a wingman.</div>`));
+  const iAmWingman=(await getMyDaters(ME.id)).length>0;
+  for(const d of dir){
+    // connection from MY side (via my wingmen) — the approaching side sees the route
+    const conn=await connectionTo(ME.id,d.id);
+    let connHtml='';
+    if(conn.kind==='direct')connHtml=`<div class="conn-line conn-direct"><span class="dot dot-green"></span>Your wingman ${esc(conn.wmName)} knows them</div>`;
+    else if(conn.kind==='bridged')connHtml=`<div class="conn-line conn-bridged"><span class="dot dot-rose"></span>Reachable through your wingman ${esc(conn.wmName)}</div>`;
+    else connHtml=`<div class="conn-line conn-none"><span class="dot dot-grey"></span>No connection yet — a colder approach</div>`;
+
+    const tags=[d.pf.age,d.pf.iAm,d.pf.lookingFor,d.pf.area].filter(Boolean).map(t=>`<span class="pf-tag">${esc(t)}</span>`).join('');
+    const card=el(`<div class="br-card">
+      <div class="row-c" style="margin-bottom:8px;">
+        <div class="av av-md">${esc(ini(d.name))}</div>
+        <div class="lr-body">
+          <div class="t-title" style="font-size:16px;">${esc(d.name)}</div>
+          <div class="lr-sub">${esc(d.pf.iAm||'')}${d.pf.interestedIn?' · interested in '+esc(d.pf.interestedIn):''}</div>
+        </div>
+      </div>
+      <div style="margin:2px 0 2px;">${tags}</div>
+      <div class="t-caption" style="margin-top:6px;line-height:1.5;-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;">${esc(d.pf.bio)}</div>
+      ${connHtml}
+    </div>`);
+    card.addEventListener('click',()=>openBrowseProfile(d.id,iAmWingman));
+    cont.appendChild(card);
+  }
+}
+
+// Full profile + approach entry points
+async function openBrowseProfile(targetId,iAmWingman){
+  const [t,pf]=await Promise.all([getPerson(targetId),getProfile(targetId)]);
+  if(!pf)return;
+  const conn=await connectionTo(ME.id,targetId);
+  openSheet(async body=>{
+    body.appendChild(el(`<div>
+      <div class="row-c" style="margin-bottom:12px;">
+        <div class="av av-lg">${esc(ini(t?.name||targetId))}</div>
+        <div class="lr-body"><div class="t-head-sm">${esc(t?.name||targetId)}</div>
+        <div class="t-caption">${esc(pf.iAm||'')}${pf.age?' · '+esc(pf.age):''}${pf.area?' · '+esc(pf.area):''}</div></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span class="pf-tag">Interested in ${esc(pf.interestedIn||'—')}</span>
+        <span class="pf-tag">${esc(pf.lookingFor||'—')}</span>
+      </div>
+      <div class="t-body" style="font-size:14px;color:var(--ink2);line-height:1.6;">${esc(pf.bio||'')}</div>
+    `));
+
+    // approach options depend on who I am
+    body.appendChild(el(`<div class="section-head">Make an approach</div>`));
+
+    // As a wingman: approach directly for one of my daters
+    if(iAmWingman){
+      const myDaters=await getStash(ME.id); // daters of mine with a profile
+      const eligible=myDaters.filter(s=>s.id!==targetId);
+      if(eligible.length){
+        const opts=eligible.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+        const reach=await wmReaches(ME.id,targetId);
+        const reachLine=reach.kind==='direct'?'You already have them in your Book.':reach.kind==='bridged'?'You can reach them through a collaborator.':'You don\'t reach them yet — this is a colder approach.';
+        const wCard=el(`<div class="card card-p" style="margin-bottom:10px;">
+          <div class="t-title" style="font-size:14px;margin-bottom:3px;">As a wingman</div>
+          <div class="t-caption" style="margin-bottom:2px;">Introduce one of your daters to ${esc(t?.name||'them')}. ${esc(t?.name?t.name.split(' ')[0]:'They')} decides, and can consult their own wingman.</div>
+          <div class="t-caption" style="font-size:12px;color:var(--ink3);margin-bottom:10px;">${reachLine}</div>
+          <div style="margin-bottom:10px;"><label class="f-label">Your dater</label><select class="inp" id="apDater" style="font-size:14px;">${opts}</select></div>
+          <div style="margin-bottom:12px;"><label class="f-label">Your note — ${esc(t?.name?t.name.split(' ')[0]:'they')} and their wingman will read this</label><textarea class="inp" id="apNote" rows="2" style="font-size:14px;" placeholder="Why these two. Two or three honest sentences."></textarea></div>
+          <button class="btn btn-rose" id="apGo">Approach ${esc(t?.name?t.name.split(' ')[0]:'them')}</button>
+        </div>`);
+        wCard.querySelector('#apGo').addEventListener('click',async()=>{
+          const myDater=wCard.querySelector('#apDater').value;
+          const note=wCard.querySelector('#apNote').value.trim();
+          if(!note){toast('Write a note — that\'s the vouch');return;}
+          const capMsg=await checkCaps(ME.id,myDater,targetId);
+          if(capMsg){toast(capMsg);return;}
+          // Direct approach = a single-wingman intro I initiate; target decides (+ can consult their wingman).
+          await createMatch({type:'single',daterAId:myDater,daterBId:targetId,wmXId:ME.id,note,confidence:1});
+          toast('Approach sent ✓');closeSheet();WMTAB='pending';
+          if(CURRENT_SCREEN==='wing')renderWingHub();
+        });
+        body.appendChild(wCard);
+      }else{
+        body.appendChild(el(`<div class="t-caption" style="margin-bottom:10px;">You're a wingman, but none of your daters have a profile yet, so there's no one to introduce.</div>`));
+      }
+    }
+
+    // As a dater: ask one of my wingmen to approach for me
+    const myWms=await getMyWingmen(ME.id);
+    if(myWms.length){
+      // order wingmen by who actually has a path to the target
+      const wmRows=[];
+      for(const w of myWms){
+        const wp=await getPerson(w.wmId);
+        const r=await wmReaches(w.wmId,targetId);
+        wmRows.push({id:w.wmId,name:wp?.name||w.wmId,reach:r.kind});
+      }
+      wmRows.sort((a,b)=>({direct:0,bridged:1,none:2})[a.reach]-({direct:0,bridged:1,none:2})[b.reach]);
+      const opts=wmRows.map(w=>`<option value="${w.id}">${esc(w.name)}${w.reach==='direct'?' — knows them':w.reach==='bridged'?' — can reach them':''}</option>`).join('');
+      const dCard=el(`<div class="card card-p">
+        <div class="t-title" style="font-size:14px;margin-bottom:3px;">Ask a wingman to approach</div>
+        <div class="t-caption" style="margin-bottom:10px;">You don't message ${esc(t?.name?t.name.split(' ')[0]:'them')} yourself. A wingman approaches for you — warmer, and no cold DM.</div>
+        <div style="margin-bottom:10px;"><label class="f-label">Which wingman</label><select class="inp" id="askWm" style="font-size:14px;">${opts}</select></div>
+        <div style="margin-bottom:12px;"><label class="f-label">Anything for them to know? <span style="color:var(--ink3);">(optional)</span></label><textarea class="inp" id="askNote" rows="2" style="font-size:14px;" placeholder="Why you're drawn to them."></textarea></div>
+        <button class="btn btn-ink" id="askGo">Ask them to approach</button>
+      </div>`);
+      dCard.querySelector('#askGo').addEventListener('click',async()=>{
+        const wmId=dCard.querySelector('#askWm').value;
+        const note=dCard.querySelector('#askNote').value.trim();
+        await requestApproach(ME.id,wmId,targetId,note);
+        toast('Asked your wingman');closeSheet();
+      });
+      body.appendChild(dCard);
+    }
+
+    if(!iAmWingman&&!myWms.length){
+      body.appendChild(el(`<div class="t-caption">Add a wingman on Home first — approaches always come through a wingman.</div>`));
+    }
+  });
+}
+
+// ═══ MATCH SHEET ═══════════════════════════════════════
+async function openMatchSheet(matchId){
+  const m=await getMatch(matchId);
+  if(!m)return;
+  OPEN_SHEET={kind:'match',id:matchId};
+
+  openSheet(async body=>{
+    const [a,b,pa,pb]=await Promise.all([
+      getPerson(m.daterAId),getPerson(m.daterBId),
+      getProfile(m.daterAId),getProfile(m.daterBId),
+    ]);
+    const st=matchStatus(m);
+    const iAmWmX=ME.id===m.wmXId;
+    const iAmWmY=ME.id===m.wmYId;
+    const iAmA=ME.id===m.daterAId;
+    const iAmB=ME.id===m.daterBId;
+    const iAmDater=iAmA||iAmB;
+
+    // Header
+    const wmXp=await getPerson(m.wmXId);
+    const wmYp=m.wmYId?await getPerson(m.wmYId):null;
+    const introBy=esc(wmXp?.name||m.wmXId)+(wmYp?' &amp; '+esc(wmYp?.name||m.wmYId):'');
+    body.appendChild(el(`<div>
+      <div class="t-micro" style="color:var(--rose);margin-bottom:4px;">${m.type==='cross'?'Cross-wingman intro':'Introduction'}</div>
+      <div class="t-head-sm">${esc(a?.name||m.daterAId)} &amp; ${esc(b?.name||m.daterBId)}</div>
+      <div class="t-caption" style="margin-top:3px;font-size:12px;">Introduced by ${introBy}</div>
+    </div>`));
+
+    // Profile pair
+    const pair=el(`<div class="pair-row">
+      <div class="pair-half">
+        <div class="av av-sm" style="margin-bottom:8px;">${esc(ini(a?.name||'?'))}</div>
+        <div class="t-title" style="font-size:14px;">${esc(a?.name||m.daterAId)}</div>
+        ${pa?.age?`<div class="t-caption">${esc(pa.age)}</div>`:''}
+        ${pa?.bio?`<div class="t-caption" style="font-size:12px;margin-top:4px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;">${esc(pa.bio)}</div>`:''}
+      </div>
+      <div class="pair-amp">&amp;</div>
+      <div class="pair-half">
+        <div class="av av-sm av-green" style="margin-bottom:8px;">${esc(ini(b?.name||'?'))}</div>
+        <div class="t-title" style="font-size:14px;">${esc(b?.name||m.daterBId)}</div>
+        ${pb?.age?`<div class="t-caption">${esc(pb.age)}</div>`:''}
+        ${pb?.bio?`<div class="t-caption" style="font-size:12px;margin-top:4px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;">${esc(pb.bio)}</div>`:''}
+      </div>
+    </div>`);
+    body.appendChild(pair);
+
+    if(m.note){
+      body.appendChild(el(`<div class="conv-block"><div class="conv-label">Why ${esc(wmXp?.name||m.wmXId)} thinks so</div><div class="conv-text">&ldquo;${esc(m.note)}&rdquo;</div></div>`));
+    }
+    if(typeof m.confidence==='number'&&ME.id===m.wmXId){
+      body.appendChild(el(`<div class="t-caption" style="margin-top:8px;font-size:12px;color:var(--ink3);">Your private read: ${CONF[m.confidence]}. Only you can see this.</div>`));
+    }
+
+    // Approvals
+    body.appendChild(el(`<div class="section-head">Approvals</div>`));
+    const apprWrap=el(`<div></div>`);
+    for(const pid of m.required){
+      const p=await getPerson(pid);
+      const v=m.approvals[pid];
+      const badge=v===true?`<span class="badge badge-matched">Yes ✓</span>`:v===false?`<span class="badge badge-declined">No</span>`:`<span class="badge badge-grey">Waiting</span>`;
+      apprWrap.appendChild(el(`<div class="appr-row"><span class="t-caption">${esc(p?.name||pid)}</span>${badge}</div>`));
+    }
+    body.appendChild(apprWrap);
+
+    // Cross-wingman: wingman approval buttons
+    if(m.type==='cross'&&(iAmWmX||iAmWmY)&&m.approvals[ME.id]===null){
+      const wbRow=el(`<div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn btn-danger btn-sm" id="wmNoBtn" style="flex:1;">Withdraw</button>
+        <button class="btn btn-ink btn-sm" id="wmYesBtn" style="flex:2;">Confirm from my side</button>
+      </div>`);
+      wbRow.querySelector('#wmYesBtn').addEventListener('click',async()=>{
+        await setApproval(m.id,ME.id,true);toast('Confirmed ✓');openMatchSheet(m.id);
+      });
+      wbRow.querySelector('#wmNoBtn').addEventListener('click',async()=>{
+        await setApproval(m.id,ME.id,false);toast('Withdrawn');openMatchSheet(m.id);
+      });
+      body.appendChild(wbRow);
+    }
+
+    // Q & A
+    body.appendChild(el(`<div class="section-head">Questions &amp; answers</div>`));
+    if(!m.questions.length){
+      body.appendChild(el(`<div class="t-caption" style="padding:2px 0 8px;">No questions yet.</div>`));
+    }
+    for(const q of m.questions){
+      const asker=await getPerson(q.fromId);
+      const qBlock=el(`<div class="q-block">
+        <div class="q-text">${esc(asker?.name||q.fromId)} asked: "${esc(q.text)}"</div>
+        ${q.answer
+          ?`<div class="a-text">${esc(q.answer)}</div>`
+          :q.toWmId===ME.id
+            ?`<div class="ans-row"><input class="ans-inp" placeholder="Your answer…" data-qid="${q.id}"/><button class="ans-btn" data-qid="${q.id}">Reply</button></div>`
+            :`<div class="a-text" style="color:var(--ink3);">Waiting for an answer…</div>`
+        }
+      </div>`);
+      if(!q.answer&&q.toWmId===ME.id){
+        qBlock.querySelector('.ans-btn').addEventListener('click',async()=>{
+          const val=qBlock.querySelector('.ans-inp').value.trim();
+          if(!val)return;
+          await answerQ(m.id,q.id,val);toast('Answered');openMatchSheet(m.id);
+        });
+      }
+      body.appendChild(qBlock);
+    }
+
+    // Dater can ask a question
+    if(iAmDater&&st==='pending'){
+      // Route question to the correct wingman:
+      // dater A's wingman is wmX; dater B's wingman for cross is wmY, for single also wmX
+      const toWmId=iAmA?m.wmXId:(m.type==='cross'?m.wmYId:m.wmXId);
+      const toWm=await getPerson(toWmId);
+      body.appendChild(el(`<div style="margin-top:10px;">
+        <label class="f-label">Ask ${esc(toWm?.name||'your wingman')} a question</label>
+        <div style="display:flex;gap:8px;">
+          <input class="inp" id="askInp" placeholder="What do you want to know?" style="font-size:14px;flex:1;" data-wmid="${toWmId}"/>
+          <button class="btn btn-ghost btn-sm" id="askBtn">Ask</button>
+        </div>
+      </div>`));
+      body.querySelector('#askBtn').addEventListener('click',async()=>{
+        const inp=body.querySelector('#askInp');
+        const text=(inp.value||'').trim();
+        if(!text)return;
+        await addQuestion(m.id,ME.id,inp.dataset.wmid,text);
+        toast('Question sent');openMatchSheet(m.id);
+      });
+    }
+
+    // ── CHAT (matched only) ──
+    if(st==='matched'){
+      // feedback pulse: free-text, dater → wingmen only
+      if(iAmDater){
+        const myPulse=await getPulse(m.id,ME.id);
+        if(!myPulse){
+          const pb=el(`<div class="pulse-box">
+            <div class="t-caption" style="font-weight:500;color:var(--ink);margin-bottom:8px;">Met up already? How was it, honestly?</div>
+            <textarea class="inp" rows="2" id="pulseInp" style="font-size:14px;" placeholder="A sentence is plenty. Only your wingman reads this."></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn btn-ghost btn-sm" id="pulseSkip" style="flex:1;">Skip</button>
+              <button class="btn btn-ink btn-sm" id="pulseSend" style="flex:2;">Send to your wingman</button>
+            </div>
+          </div>`);
+          pb.querySelector('#pulseSend').addEventListener('click',async()=>{
+            const t=pb.querySelector('#pulseInp').value.trim();
+            if(!t){toast('Write a line, or skip');return;}
+            await savePulse(m.id,ME.id,t,false);toast('Sent — only your wingman sees it');openMatchSheet(m.id);
+          });
+          pb.querySelector('#pulseSkip').addEventListener('click',async()=>{
+            await savePulse(m.id,ME.id,'',true);toast('Skipped');openMatchSheet(m.id);
+          });
+          body.appendChild(pb);
+        }
+      }
+      if(iAmWmX||iAmWmY){
+        const [pulA,pulB]=await Promise.all([getPulse(m.id,m.daterAId),getPulse(m.id,m.daterBId)]);
+        if(pulA||pulB){
+          body.appendChild(el(`<div class="section-head">How it went — private to wingmen</div>`));
+          for(const pr of[[m.daterAId,pulA],[m.daterBId,pulB]]){
+            if(!pr[1])continue;
+            const pp=await getPerson(pr[0]);
+            body.appendChild(el(`<div class="q-block"><div class="q-text">${esc(pp?.name||pr[0])}</div><div class="a-text">${pr[1].skipped?'<em>Skipped — that\'s a signal too.</em>':'&ldquo;'+esc(pr[1].text)+'&rdquo;'}</div></div>`));
+          }
+        }
+      }
+      body.appendChild(el(`<div class="section-head">Chat</div>`));
+      const chat=await getChat(m.id);
+      const msgs=el(`<div class="chat-messages" id="chatMsgs"></div>`);
+      if(!chat.length){
+        msgs.appendChild(el(`<div class="t-caption" style="text-align:center;padding:8px;">Say hello 👋</div>`));
+      }
+      for(const msg of chat){
+        const mine=msg.senderId===ME.id;
+        const sender=await getPerson(msg.senderId);
+        const bub=el(`<div class="bubble ${mine?'bub-me':'bub-them'}">${esc(msg.text)}<span class="bub-ts">${mine?'':esc(sender?.name||'')+' · '}${ftm(msg.at)}</span></div>`);
+        msgs.appendChild(bub);
+      }
+      body.appendChild(msgs);
+      setTimeout(()=>{msgs.scrollTop=msgs.scrollHeight;},40);
+
+      if(iAmDater){
+        const chatRow=el(`<div class="chat-inp-row">
+          <input id="chatInp" placeholder="Say something…"/>
+          <button class="chat-send-btn" id="chatSend">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>`);
+        chatRow.querySelector('#chatSend').addEventListener('click',async()=>{
+          const inp=chatRow.querySelector('#chatInp');
+          const txt=(inp.value||'').trim();
+          if(!txt)return;
+          inp.value='';
+          await sendMsg(m.id,ME.id,txt);
+          openMatchSheet(m.id);
+        });
+        chatRow.querySelector('#chatInp').addEventListener('keydown',e=>{
+          if(e.key==='Enter')chatRow.querySelector('#chatSend').click();
+        });
+        // Append outside sheet-body scroll so it stays fixed at bottom
+        document.querySelector('.sheet').appendChild(chatRow);
+      } else {
+        body.appendChild(el(`<div class="t-caption" style="text-align:center;padding:10px;font-size:12px;">Only ${esc(a?.name)} and ${esc(b?.name)} can message each other.</div>`));
+      }
+    }
+  });
+}
+
+// ═══ BOOT ══════════════════════════════════════════════
+(async function boot(){
+  startClock();
+  await initStorage();
+  initLogin();
+})();
+</script>
+</body>
+</html>
